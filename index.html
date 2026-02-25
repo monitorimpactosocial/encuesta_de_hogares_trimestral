@@ -12,6 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <!-- Crossfilter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 
@@ -184,6 +188,15 @@
                         </div>
                     </div>
                 </section>
+
+                <section class="charts-grid-full map-section" style="margin-top: 1.5rem;">
+                    <div class="chart-card large map-card">
+                        <div class="chart-header">
+                            <h2>Distribución Geográfica (Mapa)</h2>
+                        </div>
+                        <div id="map-demografia" class="map-container"></div>
+                    </div>
+                </section>
             </div>
 
             <!-- TAB 2: EDUCACIÓN -->
@@ -317,6 +330,15 @@
                         <div class="chart-body">
                             <canvas id="cateOcupacionChart"></canvas>
                         </div>
+                    </div>
+                </section>
+
+                <section class="charts-grid-full map-section" style="margin-top: 1.5rem;">
+                    <div class="chart-card large map-card">
+                        <div class="chart-header">
+                            <h2>Tasa de Fuerza de Trabajo Geográfica</h2>
+                        </div>
+                        <div id="map-laboral" class="map-container"></div>
                     </div>
                 </section>
             </div>

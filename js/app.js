@@ -1,4 +1,7 @@
 let rawData = [];
+let geoJsonData = null;
+let maps = {};
+let geojsonLayers = {};
 let cf, dimTrimestre, dimSexo, dimEdad, dimDpto, dimCate;
 let activeTab = 'tab-demografia';
 let charts = {}; // Store chart instances
@@ -37,14 +40,21 @@ function initTabs() {
 
             // Re-render when tab changes
             Object.values(charts).forEach(c => c.update());
+            if (maps.demografia) setTimeout(() => maps.demografia.invalidateSize(), 150);
+            if (maps.laboral) setTimeout(() => maps.laboral.invalidateSize(), 150);
         });
     });
 }
 
 async function fetchDatos() {
     try {
-        const res = await fetch('datos_consolidados.json');
-        rawData = await res.json();
+        const [resDatos, resGeo] = await Promise.all([
+            fetch('datos_consolidados.json'),
+            fetch('departamentos.geojson')
+        ]);
+        rawData = await resDatos.json();
+        geoJsonData = await resGeo.json();
+
         if (rawData.length > 0) {
             initCrossfilter();
             initUI();
@@ -52,7 +62,7 @@ async function fetchDatos() {
         }
     } catch (e) {
         console.error("Error al cargar JSON:", e);
-        alert("Asegúrate de tener el servidor web levantado y de haber procesado los datos.");
+        alert("Asegúrate de tener el servidor web levantado y de haber procesado los datos y mapas.");
     }
 }
 
@@ -93,6 +103,7 @@ function initUI() {
     document.getElementById('btn-reset-filters').addEventListener('click', resetFilters);
 
     initCharts();
+    initMaps();
 }
 
 function getUniqueDimensionValues(dimension) {
@@ -234,7 +245,7 @@ function updateDashboard() {
     let totalAniosPond = 0, totalAportaIPS = 0, totalAportaJub = 0;
     let obrerosSML = { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 };
 
-    let mapSexo = {}, mapEdadPET = {}, mapDpto = {}, mapEdadAniosPond = {};
+    let mapSexo = {}, mapEdadPET = {}, mapDpto = {}, mapDptoPEA = {}, mapEdadAniosPond = {};
     let mapCateOcupados = {}, mapCateIPS = {}, mapCateJub = {};
 
     allFiltered.forEach(row => {
@@ -252,6 +263,7 @@ function updateDashboard() {
         mapSexo[row.sexo] = (mapSexo[row.sexo] || 0) + row.personas_pet;
         mapEdadPET[row.tramo_edad] = (mapEdadPET[row.tramo_edad] || 0) + row.personas_pet;
         mapDpto[row.departamento] = (mapDpto[row.departamento] || 0) + row.personas_pet;
+        mapDptoPEA[row.departamento] = (mapDptoPEA[row.departamento] || 0) + (row.ocupados + row.desocupados);
         mapEdadAniosPond[row.tramo_edad] = (mapEdadAniosPond[row.tramo_edad] || 0) + row.anios_estudio_pond;
 
         if (row.categocupa !== 'NR') {
@@ -321,6 +333,8 @@ function updateDashboard() {
         data: [obrerosSML["Menos de 1 SML"], obrerosSML["1 SML"], obrerosSML["Más de 1 SML"]],
         backgroundColor: [colors.red, colors.yellow, colors.green]
     }]);
+
+    updateMaps(mapDpto, mapDptoPEA);
 }
 
 function updateChartData(chart, labels, datasets) {
@@ -385,4 +399,98 @@ function updateHistoricalCharts() {
         { label: '1 SML (%)', data: smlIgual, backgroundColor: colors.yellow },
         { label: 'Más de 1 SML (%)', data: smlMas, backgroundColor: colors.green }
     ]);
+}
+
+/* ============================
+    Leaflet Map Rendering
+============================ */
+function getColorPop(d) {
+    return d > 300000 ? '#047857' : // emerald-700
+        d > 100000 ? '#10b981' : // emerald-500
+            d > 50000 ? '#34d399' : // emerald-400
+                d > 20000 ? '#6ee7b7' : // emerald-300
+                    '#a7f3d0';  // emerald-200
+}
+
+function getColorLab(d) {
+    return d > 70 ? '#1d4ed8' : // blue-700
+        d > 65 ? '#2563eb' : // blue-600
+            d > 60 ? '#3b82f6' : // blue-500
+                d > 55 ? '#60a5fa' : // blue-400
+                    '#93c5fd';  // blue-300
+}
+
+function onEachMapFeature(feature, layer, mapType) {
+    layer.on({
+        mouseover: (e) => {
+            var l = e.target;
+            l.setStyle({ weight: 3, color: '#f8fafc', dashArray: '', fillOpacity: 0.9 });
+            l.bringToFront();
+        },
+        mouseout: (e) => {
+            geojsonLayers[mapType].resetStyle(e.target);
+        }
+    });
+}
+
+function initMaps() {
+    if (!geoJsonData) return;
+
+    // Define standard carto dark layer
+    const darkTile = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const tileOptions = { attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 18 };
+
+    // 1. Demografia Map
+    maps.demografia = L.map('map-demografia').setView([-23.5, -58.0], 6);
+    L.tileLayer(darkTile, tileOptions).addTo(maps.demografia);
+
+    geojsonLayers.demografia = L.geoJson(geoJsonData, {
+        style: () => ({ fillColor: '#a7f3d0', weight: 2, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.7 }),
+        onEachFeature: (f, l) => onEachMapFeature(f, l, 'demografia')
+    }).addTo(maps.demografia);
+
+    // 2. Laboral Map
+    maps.laboral = L.map('map-laboral').setView([-23.5, -58.0], 6);
+    L.tileLayer(darkTile, tileOptions).addTo(maps.laboral);
+
+    geojsonLayers.laboral = L.geoJson(geoJsonData, {
+        style: () => ({ fillColor: '#93c5fd', weight: 2, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.8 }),
+        onEachFeature: (f, l) => onEachMapFeature(f, l, 'laboral')
+    }).addTo(maps.laboral);
+}
+
+function updateMaps(mapDpto, mapDptoPEA) {
+    if (!geoJsonData || !geojsonLayers.demografia || !geojsonLayers.laboral) return;
+
+    // Update Demografia Layer (PET)
+    geojsonLayers.demografia.eachLayer(layer => {
+        const dptoName = layer.feature.properties.dpto_name;
+        const pet = mapDpto[dptoName] || 0;
+        layer.setStyle({ fillColor: getColorPop(pet) });
+
+        layer.bindPopup(`
+            <div class="custom-popup">
+                <strong>${dptoName}</strong>
+                Población PET: ${formatNumber(Math.round(pet))}
+            </div>
+        `);
+    });
+
+    // Update Laboral Layer (Tasa FT)
+    geojsonLayers.laboral.eachLayer(layer => {
+        const dptoName = layer.feature.properties.dpto_name;
+        const pet = mapDpto[dptoName] || 0;
+        const pea = mapDptoPEA[dptoName] || 0;
+        const tasa = pet > 0 ? (pea / pet) * 100 : 0;
+
+        layer.setStyle({ fillColor: getColorLab(tasa) });
+
+        layer.bindPopup(`
+            <div class="custom-popup">
+                <strong>${dptoName}</strong>
+                Tasa Fuerza Trabajo: ${tasa.toFixed(1)}%<br>
+                Fuerza Trabajo (PEA): ${formatNumber(Math.round(pea))}
+            </div>
+        `);
+    });
 }
