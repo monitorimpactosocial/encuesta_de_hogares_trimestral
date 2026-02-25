@@ -3,9 +3,21 @@ import pyreadstat
 import pandas as pd
 import json
 import datetime
+import numpy as np
 
 DIR_PATH = ".."
 OUTPUT_PATH = "datos_consolidados.json"
+
+# Custom JSON Encoder for numpy types
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 # Salario Minimo Legal history
 sml_history = [
@@ -31,12 +43,6 @@ def get_sml(anio, mes):
 
 def get_mes_trimestre(trimestre):
     # Mapeo del R script
-    # 1: Feb, 2: May, 3: Ago, 4: Nov
-    # La EPHC tiene trimestres del 1 al 20, correspondientes a Q1-Q4 de diferentes años
-    # 1=2022Q1, 2=2022Q2, 3=2022Q3, 4=2022Q4
-    # 5=2023Q1, 6=2023Q2, etc. (En la base SAV TRIMESTRE es continuo)
-    # Sin embargo, en algunas bases "TRIMESTRE" solo dice 1, 2, 3, 4 y el "ANIO" da el año.
-    # Evaluaremos el modulo basandonos en el trimestre 1..4 (por modulo 4) si es continuo, o si es 1-4 directo
     t = (trimestre - 1) % 4 + 1
     if t == 1: return 2
     if t == 2: return 5
@@ -89,10 +95,10 @@ for sav_file in archivos_sav:
         anio = int(df_anio[0])
         # Ajustamos porque algunas bases dicen "anio 2022" pero trimestre es "5" en vez de "1", el mod nos da el verdadero.
         trim_raw = int(df_trim[0])
-        trim_real = (trim_raw - 1) % 4 + 1
+        trim_real = int((trim_raw - 1) % 4 + 1)
         
         mes_intermedio = get_mes_trimestre(trim_real)
-        sml_vigente = get_sml(anio, mes_intermedio)
+        sml_vigente = float(get_sml(anio, mes_intermedio))
         
         trimestre_desc = f"{anio}Trim{trim_real}"
         
@@ -132,13 +138,13 @@ for sav_file in archivos_sav:
             total_pesos = sml_grp['PESO'].sum()
             for _, row in sml_grp.iterrows():
                 sml_data_grouped.append({
-                    "trimestre_desc": trimestre_desc,
-                    "anio": anio,
-                    "trimestre": trim_real,
-                    "sml_vigente": sml_vigente,
-                    "categoria": row['sml_cat'],
-                    "personas": round(row['PESO'], 2),
-                    "porcentaje": round((row['PESO'] / total_pesos * 100), 1) if total_pesos > 0 else 0
+                    "trimestre_desc": str(trimestre_desc),
+                    "anio": int(anio),
+                    "trimestre": int(trim_real),
+                    "sml_vigente": float(sml_vigente),
+                    "categoria": str(row['sml_cat']),
+                    "personas": round(float(row['PESO']), 2),
+                    "porcentaje": round(float((row['PESO'] / total_pesos * 100)), 1) if float(total_pesos) > 0 else 0.0
                 })
         
         # Guardar Ocupados por Categoría Ocupacional
@@ -146,26 +152,26 @@ for sav_file in archivos_sav:
         cate_grp = ocupados.groupby('categocupa')['PESO'].sum().reset_index()
         for _, row in cate_grp.iterrows():
             categocupa_data_grouped.append({
-                "trimestre_desc": trimestre_desc,
-                "anio": anio,
-                "trimestre": trim_real,
-                "categocupa": row['categocupa'],
-                "personas": round(row['PESO'], 2)
+                "trimestre_desc": str(trimestre_desc),
+                "anio": int(anio),
+                "trimestre": int(trim_real),
+                "categocupa": str(row['categocupa']),
+                "personas": round(float(row['PESO']), 2)
             })
 
         # Global stats
-        pet_total = df['PESO'].sum()
-        pea_total = df[df['ocupado'] | df['desocupado']]['PESO'].sum()
-        ocupados_total = df[df['ocupado']]['PESO'].sum()
-        desocupados_total = df[df['desocupado']]['PESO'].sum()
+        pet_total = float(df['PESO'].sum())
+        pea_total = float(df[df['ocupado'] | df['desocupado']]['PESO'].sum())
+        ocupados_total = float(df[df['ocupado']]['PESO'].sum())
+        desocupados_total = float(df[df['desocupado']]['PESO'].sum())
         
         resultados_trimestrales.append({
-            "trimestre_desc": trimestre_desc,
-            "anio": anio,
-            "trimestre": trim_real,
+            "trimestre_desc": str(trimestre_desc),
+            "anio": int(anio),
+            "trimestre": int(trim_real),
             "sml_vigente": float(sml_vigente),
-            "tasa_ocupacion": round(float(ocupados_total / pet_total * 100), 2) if pet_total > 0 else 0,
-            "tasa_desocupacion": round(float(desocupados_total / pea_total * 100), 2) if pea_total > 0 else 0
+            "tasa_ocupacion": round(float(ocupados_total / pet_total * 100), 2) if pet_total > 0 else 0.0,
+            "tasa_desocupacion": round(float(desocupados_total / pea_total * 100), 2) if pea_total > 0 else 0.0
         })
 
     except Exception as e:
@@ -190,6 +196,6 @@ salida_json = {
 }
 
 with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-    json.dump(salida_json, f, indent=4, ensure_ascii=False)
+    json.dump(salida_json, f, indent=4, ensure_ascii=False, cls=NpEncoder)
 
 print(f"\nDatos de Monitoreo extraídos exitosamente y guardados en: {OUTPUT_PATH}")

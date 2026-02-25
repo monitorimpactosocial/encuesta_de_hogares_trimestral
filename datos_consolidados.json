@@ -1,0 +1,3080 @@
+{
+    "globales": [
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 65.27,
+            "tasa_desocupacion": 0.7
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 65.48,
+            "tasa_desocupacion": 1.32
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 67.45,
+            "tasa_desocupacion": 0.72
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 67.17,
+            "tasa_desocupacion": 0.73
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.45,
+            "tasa_desocupacion": 0.68
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 67.25,
+            "tasa_desocupacion": 0.92
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 67.6,
+            "tasa_desocupacion": 0.67
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 68.02,
+            "tasa_desocupacion": 0.71
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 68.2,
+            "tasa_desocupacion": 0.68
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 65.77,
+            "tasa_desocupacion": 0.93
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.98,
+            "tasa_desocupacion": 0.69
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 68.71,
+            "tasa_desocupacion": 0.89
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.75,
+            "tasa_desocupacion": 0.85
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 67.31,
+            "tasa_desocupacion": 0.62
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.91,
+            "tasa_desocupacion": 0.73
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.48,
+            "tasa_desocupacion": 0.68
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 66.72,
+            "tasa_desocupacion": 0.83
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 65.24,
+            "tasa_desocupacion": 0.91
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "tasa_ocupacion": 65.5,
+            "tasa_desocupacion": 0.71
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "sml_vigente": 2550307.0,
+            "tasa_ocupacion": 66.31,
+            "tasa_desocupacion": 0.61
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "sml_vigente": 2550307.0,
+            "tasa_ocupacion": 66.25,
+            "tasa_desocupacion": 0.5
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "sml_vigente": 2550307.0,
+            "tasa_ocupacion": 65.3,
+            "tasa_desocupacion": 0.45
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "sml_vigente": 2550307.0,
+            "tasa_ocupacion": 67.24,
+            "tasa_desocupacion": 0.55
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "sml_vigente": 2680373.0,
+            "tasa_ocupacion": 67.39,
+            "tasa_desocupacion": 0.4
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "sml_vigente": 2680373.0,
+            "tasa_ocupacion": 68.26,
+            "tasa_desocupacion": 0.48
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "sml_vigente": 2680373.0,
+            "tasa_ocupacion": 66.57,
+            "tasa_desocupacion": 0.57
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "sml_vigente": 2680373.0,
+            "tasa_ocupacion": 66.0,
+            "tasa_desocupacion": 0.53
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 67.07,
+            "tasa_desocupacion": 0.56
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 69.05,
+            "tasa_desocupacion": 0.34
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 66.87,
+            "tasa_desocupacion": 0.53
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 68.08,
+            "tasa_desocupacion": 0.5
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 69.42,
+            "tasa_desocupacion": 0.38
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "tasa_ocupacion": 70.78,
+            "tasa_desocupacion": 0.55
+        }
+    ],
+    "sml_obreros_privados": [
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 140651.0,
+            "porcentaje": 12.8
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 663563.0,
+            "porcentaje": 60.2
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 297171.0,
+            "porcentaje": 27.0
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 168897.0,
+            "porcentaje": 15.4
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 654578.0,
+            "porcentaje": 59.8
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 270364.0,
+            "porcentaje": 24.7
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 166647.0,
+            "porcentaje": 14.5
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 675010.0,
+            "porcentaje": 58.9
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 304079.0,
+            "porcentaje": 26.5
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 168716.0,
+            "porcentaje": 15.0
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 656896.0,
+            "porcentaje": 58.3
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 300191.0,
+            "porcentaje": 26.7
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 173805.0,
+            "porcentaje": 16.0
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 598834.0,
+            "porcentaje": 55.0
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 317039.0,
+            "porcentaje": 29.1
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 187136.0,
+            "porcentaje": 17.0
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 562471.0,
+            "porcentaje": 51.0
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 353051.0,
+            "porcentaje": 32.0
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 212222.0,
+            "porcentaje": 18.3
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 599128.0,
+            "porcentaje": 51.7
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 348319.0,
+            "porcentaje": 30.0
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 246619.0,
+            "porcentaje": 21.4
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 562620.0,
+            "porcentaje": 48.9
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 341220.0,
+            "porcentaje": 29.7
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 229436.0,
+            "porcentaje": 20.4
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 505944.0,
+            "porcentaje": 44.9
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 391595.0,
+            "porcentaje": 34.7
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 211070.0,
+            "porcentaje": 19.1
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 527547.0,
+            "porcentaje": 47.7
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 366630.0,
+            "porcentaje": 33.2
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 266886.0,
+            "porcentaje": 23.6
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 515804.0,
+            "porcentaje": 45.5
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 350343.0,
+            "porcentaje": 30.9
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 267284.0,
+            "porcentaje": 22.6
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 532626.0,
+            "porcentaje": 45.0
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 383794.0,
+            "porcentaje": 32.4
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 253990.0,
+            "porcentaje": 22.1
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 508437.0,
+            "porcentaje": 44.2
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 386609.0,
+            "porcentaje": 33.6
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 247411.0,
+            "porcentaje": 21.7
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 569144.0,
+            "porcentaje": 50.0
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 322828.0,
+            "porcentaje": 28.3
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 224309.0,
+            "porcentaje": 19.8
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 582870.0,
+            "porcentaje": 51.5
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 325440.0,
+            "porcentaje": 28.7
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 293169.0,
+            "porcentaje": 25.3
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 532405.0,
+            "porcentaje": 45.9
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 333221.0,
+            "porcentaje": 28.8
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 292117.0,
+            "porcentaje": 24.9
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 497522.0,
+            "porcentaje": 42.3
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 385604.0,
+            "porcentaje": 32.8
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 287222.0,
+            "porcentaje": 24.8
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 465259.0,
+            "porcentaje": 40.2
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 405759.0,
+            "porcentaje": 35.0
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "1 SML",
+            "personas": 338907.0,
+            "porcentaje": 28.7
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 405996.0,
+            "porcentaje": 34.4
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "sml_vigente": 2289324.0,
+            "categoria": "Más de 1 SML",
+            "personas": 435703.0,
+            "porcentaje": 36.9
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "sml_vigente": 2550307.0,
+            "categoria": "1 SML",
+            "personas": 308817.0,
+            "porcentaje": 25.7
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "sml_vigente": 2550307.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 492413.0,
+            "porcentaje": 41.1
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "sml_vigente": 2550307.0,
+            "categoria": "Más de 1 SML",
+            "personas": 398211.0,
+            "porcentaje": 33.2
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "sml_vigente": 2550307.0,
+            "categoria": "1 SML",
+            "personas": 335824.0,
+            "porcentaje": 28.1
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "sml_vigente": 2550307.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 455235.0,
+            "porcentaje": 38.1
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "sml_vigente": 2550307.0,
+            "categoria": "Más de 1 SML",
+            "personas": 403121.0,
+            "porcentaje": 33.8
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "sml_vigente": 2550307.0,
+            "categoria": "1 SML",
+            "personas": 353389.0,
+            "porcentaje": 29.2
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "sml_vigente": 2550307.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 434647.0,
+            "porcentaje": 35.9
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "sml_vigente": 2550307.0,
+            "categoria": "Más de 1 SML",
+            "personas": 424152.0,
+            "porcentaje": 35.0
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "sml_vigente": 2550307.0,
+            "categoria": "1 SML",
+            "personas": 378217.0,
+            "porcentaje": 30.5
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "sml_vigente": 2550307.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 416295.0,
+            "porcentaje": 33.6
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "sml_vigente": 2550307.0,
+            "categoria": "Más de 1 SML",
+            "personas": 444067.0,
+            "porcentaje": 35.9
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "sml_vigente": 2680373.0,
+            "categoria": "1 SML",
+            "personas": 311936.0,
+            "porcentaje": 24.4
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "sml_vigente": 2680373.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 527901.0,
+            "porcentaje": 41.3
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "sml_vigente": 2680373.0,
+            "categoria": "Más de 1 SML",
+            "personas": 438920.0,
+            "porcentaje": 34.3
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "sml_vigente": 2680373.0,
+            "categoria": "1 SML",
+            "personas": 340465.0,
+            "porcentaje": 26.3
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "sml_vigente": 2680373.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 482323.0,
+            "porcentaje": 37.3
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "sml_vigente": 2680373.0,
+            "categoria": "Más de 1 SML",
+            "personas": 470917.0,
+            "porcentaje": 36.4
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "sml_vigente": 2680373.0,
+            "categoria": "1 SML",
+            "personas": 368019.0,
+            "porcentaje": 28.3
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "sml_vigente": 2680373.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 443930.0,
+            "porcentaje": 34.2
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "sml_vigente": 2680373.0,
+            "categoria": "Más de 1 SML",
+            "personas": 487561.0,
+            "porcentaje": 37.5
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "sml_vigente": 2680373.0,
+            "categoria": "1 SML",
+            "personas": 348603.0,
+            "porcentaje": 27.0
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "sml_vigente": 2680373.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 473519.0,
+            "porcentaje": 36.7
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "sml_vigente": 2680373.0,
+            "categoria": "Más de 1 SML",
+            "personas": 466990.0,
+            "porcentaje": 36.2
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 417238.0,
+            "porcentaje": 31.7
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 498509.0,
+            "porcentaje": 37.9
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 398777.0,
+            "porcentaje": 30.3
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 385331.0,
+            "porcentaje": 28.9
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 482543.0,
+            "porcentaje": 36.2
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 464770.0,
+            "porcentaje": 34.9
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 404590.0,
+            "porcentaje": 30.2
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 487766.0,
+            "porcentaje": 36.4
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 445905.0,
+            "porcentaje": 33.3
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 419553.0,
+            "porcentaje": 30.2
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 504311.0,
+            "porcentaje": 36.2
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 467441.0,
+            "porcentaje": 33.6
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 422867.0,
+            "porcentaje": 30.7
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 435455.0,
+            "porcentaje": 31.7
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 517276.0,
+            "porcentaje": 37.6
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "1 SML",
+            "personas": 451914.0,
+            "porcentaje": 32.1
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "Menos de 1 SML",
+            "personas": 433506.0,
+            "porcentaje": 30.8
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "sml_vigente": 2798309.0,
+            "categoria": "Más de 1 SML",
+            "personas": 523686.0,
+            "porcentaje": 37.2
+        }
+    ],
+    "categorias_ocupacionales": [
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 782716.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 28.6
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 206577.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 7.6
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 161021.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 5.9
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "NR",
+            "personas": 524.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1101992.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 40.3
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 284021.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 10.4
+        },
+        {
+            "trimestre_desc": "2017Trim1",
+            "anio": 2017,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 195503.0,
+            "total_periodo": 2732354.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 846923.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 30.8
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 177904.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 6.5
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 153784.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 5.6
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "NR",
+            "personas": 1032.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1093922.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 39.8
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 281143.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 10.2
+        },
+        {
+            "trimestre_desc": "2017Trim2",
+            "anio": 2017,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 196686.0,
+            "total_periodo": 2751394.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 784581.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 27.6
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 198152.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 168497.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 5.9
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "NR",
+            "personas": 1878.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1146533.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 40.3
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 328543.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 11.6
+        },
+        {
+            "trimestre_desc": "2017Trim3",
+            "anio": 2017,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 216336.0,
+            "total_periodo": 2844520.0,
+            "porcentaje": 7.6
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 876242.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 30.8
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 202345.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 163288.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 5.7
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 2176.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1126383.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 39.6
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 279155.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 9.8
+        },
+        {
+            "trimestre_desc": "2017Trim4",
+            "anio": 2017,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 193000.0,
+            "total_periodo": 2842589.0,
+            "porcentaje": 6.8
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 879659.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 31.2
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 199951.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 153751.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 5.4
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1089678.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 38.6
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 306019.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 10.8
+        },
+        {
+            "trimestre_desc": "2018Trim1",
+            "anio": 2018,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 192835.0,
+            "total_periodo": 2821893.0,
+            "porcentaje": 6.8
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 871764.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 30.4
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 198197.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 181562.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 6.3
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "NR",
+            "personas": 562.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1104470.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 38.5
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 299121.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 10.4
+        },
+        {
+            "trimestre_desc": "2018Trim2",
+            "anio": 2018,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 210471.0,
+            "total_periodo": 2866147.0,
+            "porcentaje": 7.3
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 833950.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 28.8
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 206296.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 155252.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 5.4
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "NR",
+            "personas": 2364.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1161495.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 40.2
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 319932.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 11.1
+        },
+        {
+            "trimestre_desc": "2018Trim3",
+            "anio": 2018,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 212012.0,
+            "total_periodo": 2891301.0,
+            "porcentaje": 7.3
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 877966.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 30.1
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 215171.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 7.4
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 166876.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 5.7
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 382.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1151606.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 39.4
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 313243.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 10.7
+        },
+        {
+            "trimestre_desc": "2018Trim4",
+            "anio": 2018,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 193924.0,
+            "total_periodo": 2919168.0,
+            "porcentaje": 6.6
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 902420.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 30.7
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 204487.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 179410.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 6.1
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1127629.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 38.4
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 302989.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 10.3
+        },
+        {
+            "trimestre_desc": "2019Trim1",
+            "anio": 2019,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 219936.0,
+            "total_periodo": 2936871.0,
+            "porcentaje": 7.5
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 841320.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 29.6
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 204963.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 211198.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 7.4
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "NR",
+            "personas": 936.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1107338.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 39.0
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 295982.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 10.4
+        },
+        {
+            "trimestre_desc": "2019Trim2",
+            "anio": 2019,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 180408.0,
+            "total_periodo": 2842145.0,
+            "porcentaje": 6.3
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 873865.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 30.1
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 209160.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 181978.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 6.3
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "NR",
+            "personas": 514.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1137188.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 39.2
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 315616.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 10.9
+        },
+        {
+            "trimestre_desc": "2019Trim3",
+            "anio": 2019,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 185721.0,
+            "total_periodo": 2904042.0,
+            "porcentaje": 6.4
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 904114.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 30.2
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 213228.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 170691.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 5.7
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 2170.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1185779.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 39.7
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 318489.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 10.7
+        },
+        {
+            "trimestre_desc": "2019Trim4",
+            "anio": 2019,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 194437.0,
+            "total_periodo": 2988908.0,
+            "porcentaje": 6.5
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 878893.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 30.2
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 194094.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 6.7
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 181528.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 6.2
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "NR",
+            "personas": 3568.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1151200.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 39.5
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 307452.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 10.6
+        },
+        {
+            "trimestre_desc": "2020Trim1",
+            "anio": 2020,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 196609.0,
+            "total_periodo": 2913344.0,
+            "porcentaje": 6.7
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 961426.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 32.4
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 191266.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 6.5
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 150759.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1141118.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 38.5
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 309398.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 10.4
+        },
+        {
+            "trimestre_desc": "2020Trim4",
+            "anio": 2020,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 210214.0,
+            "total_periodo": 2964181.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 964091.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 32.6
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 183226.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 6.2
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 169195.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 5.7
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1134674.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 38.4
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 289168.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 9.8
+        },
+        {
+            "trimestre_desc": "2021Trim1",
+            "anio": 2021,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 213928.0,
+            "total_periodo": 2954282.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 920575.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 31.2
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 206922.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 142672.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 4.8
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1161884.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 39.4
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 334523.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 11.3
+        },
+        {
+            "trimestre_desc": "2021Trim3",
+            "anio": 2021,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 183738.0,
+            "total_periodo": 2950314.0,
+            "porcentaje": 6.2
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 956582.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 32.2
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 185904.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 6.3
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 146108.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 4.9
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 148.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1177576.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 39.7
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 294602.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 9.9
+        },
+        {
+            "trimestre_desc": "2021Trim4",
+            "anio": 2021,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 206938.0,
+            "total_periodo": 2967858.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 924230.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 31.8
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 209839.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 145955.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 5.0
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1160438.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 39.9
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 295835.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 10.2
+        },
+        {
+            "trimestre_desc": "2022Trim1",
+            "anio": 2022,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 172428.0,
+            "total_periodo": 2908725.0,
+            "porcentaje": 5.9
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 909672.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 31.1
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 183743.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 6.3
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 140941.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 4.8
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1182543.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 40.4
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 340144.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 11.6
+        },
+        {
+            "trimestre_desc": "2022Trim2",
+            "anio": 2022,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 170139.0,
+            "total_periodo": 2927182.0,
+            "porcentaje": 5.8
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 917183.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 30.9
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 195253.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 6.6
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 156879.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 5.3
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "NR",
+            "personas": 1536.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 0.1
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1199707.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 40.4
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 325147.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 10.9
+        },
+        {
+            "trimestre_desc": "2022Trim3",
+            "anio": 2022,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 175520.0,
+            "total_periodo": 2971225.0,
+            "porcentaje": 5.9
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 945948.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 31.8
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 210005.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 155499.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 5.2
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 1245.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1195362.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 40.2
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 304633.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 10.2
+        },
+        {
+            "trimestre_desc": "2022Trim4",
+            "anio": 2022,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 164250.0,
+            "total_periodo": 2976942.0,
+            "porcentaje": 5.5
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 870465.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 29.6
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 202436.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 159977.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 5.4
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1213899.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 41.3
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 346671.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 11.8
+        },
+        {
+            "trimestre_desc": "2023Trim1",
+            "anio": 2023,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 149186.0,
+            "total_periodo": 2942634.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 952121.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 31.3
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 209989.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 148172.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 4.9
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1240560.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 40.8
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 332482.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 10.9
+        },
+        {
+            "trimestre_desc": "2023Trim2",
+            "anio": 2023,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 155288.0,
+            "total_periodo": 3038612.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 923716.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 30.2
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 210856.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 158008.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 5.2
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1281515.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 42.0
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 303410.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 9.9
+        },
+        {
+            "trimestre_desc": "2023Trim3",
+            "anio": 2023,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 177238.0,
+            "total_periodo": 3054743.0,
+            "porcentaje": 5.8
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 915096.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 29.5
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 219766.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 185523.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 6.0
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1295360.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 41.7
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 314363.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 10.1
+        },
+        {
+            "trimestre_desc": "2023Trim4",
+            "anio": 2023,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 173663.0,
+            "total_periodo": 3103771.0,
+            "porcentaje": 5.6
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 881506.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 29.0
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 212529.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 173945.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 5.7
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1300865.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 42.8
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 311634.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 10.3
+        },
+        {
+            "trimestre_desc": "2024Trim1",
+            "anio": 2024,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 155590.0,
+            "total_periodo": 3036069.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 907917.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 30.1
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 212587.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 140192.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 4.6
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1289514.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 42.7
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 328808.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 10.9
+        },
+        {
+            "trimestre_desc": "2024Trim2",
+            "anio": 2024,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 140586.0,
+            "total_periodo": 3019604.0,
+            "porcentaje": 4.7
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 902315.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 29.3
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 212599.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 171223.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 5.6
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1316271.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 42.8
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 314167.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 10.2
+        },
+        {
+            "trimestre_desc": "2024Trim3",
+            "anio": 2024,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 161178.0,
+            "total_periodo": 3077753.0,
+            "porcentaje": 5.2
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 948538.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 29.8
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 224425.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 188216.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 5.9
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "NR",
+            "personas": 320.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 0.0
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1335728.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 42.0
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 319464.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 10.1
+        },
+        {
+            "trimestre_desc": "2024Trim4",
+            "anio": 2024,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 161533.0,
+            "total_periodo": 3178224.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Cuenta propia",
+            "personas": 889883.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 28.8
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Doméstico/a",
+            "personas": 217893.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 7.1
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Empleador/patrón",
+            "personas": 158375.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 5.1
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Obrero privado",
+            "personas": 1340152.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 43.4
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Obrero público",
+            "personas": 335891.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 10.9
+        },
+        {
+            "trimestre_desc": "2025Trim1",
+            "anio": 2025,
+            "trimestre": 1,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 145044.0,
+            "total_periodo": 3087238.0,
+            "porcentaje": 4.7
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Cuenta propia",
+            "personas": 935030.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 29.7
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Doméstico/a",
+            "personas": 227188.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 7.2
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Empleador/patrón",
+            "personas": 142376.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 4.5
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Obrero privado",
+            "personas": 1392809.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 44.2
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Obrero público",
+            "personas": 312253.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 9.9
+        },
+        {
+            "trimestre_desc": "2025Trim2",
+            "anio": 2025,
+            "trimestre": 2,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 142973.0,
+            "total_periodo": 3152629.0,
+            "porcentaje": 4.5
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Cuenta propia",
+            "personas": 929404.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 28.8
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Doméstico/a",
+            "personas": 226089.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 7.0
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Empleador/patrón",
+            "personas": 199017.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 6.2
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Obrero privado",
+            "personas": 1377019.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 42.7
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Obrero público",
+            "personas": 325924.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 10.1
+        },
+        {
+            "trimestre_desc": "2025Trim3",
+            "anio": 2025,
+            "trimestre": 3,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 166604.0,
+            "total_periodo": 3224057.0,
+            "porcentaje": 5.2
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Cuenta propia",
+            "personas": 982265.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 29.8
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Doméstico/a",
+            "personas": 227884.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 6.9
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Empleador/patrón",
+            "personas": 197836.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 6.0
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Obrero privado",
+            "personas": 1410409.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 42.8
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Obrero público",
+            "personas": 337577.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 10.2
+        },
+        {
+            "trimestre_desc": "2025Trim4",
+            "anio": 2025,
+            "trimestre": 4,
+            "categocupa": "Trabajador fam. no remun.",
+            "personas": 141217.0,
+            "total_periodo": 3297188.0,
+            "porcentaje": 4.3
+        }
+    ]
+}
