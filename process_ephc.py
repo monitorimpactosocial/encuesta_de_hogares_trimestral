@@ -18,11 +18,18 @@ class NpEncoder(json.JSONEncoder):
         return super(NpEncoder, self).default(obj)
 
 sml_history = [
-    ("2021-07-01", 2289324),
-    ("2022-07-01", 2550307),
-    ("2023-07-01", 2680373),
-    ("2024-06-01", 2798309),
-    ("2025-07-01", 2798309)
+    ("2015-01-01", 1824055),  # vigente desde 2014 (sin reajuste en 2015)
+    ("2016-01-01", 1824055),  # vigente hasta el reajuste de nov-2016
+    ("2017-01-01", 1964507),  # reajuste nov-2016
+    ("2018-01-01", 2041123),  # reajuste desde jul-2017
+    ("2019-01-01", 2112562),  # reajuste desde jul-2018
+    ("2020-01-01", 2192839),  # reajuste desde jul-2019 (sin cambio en 2020)
+    ("2021-01-01", 2192839),  # sin cambio hasta jul-2021
+    ("2022-01-01", 2289324),  # reajuste desde jul-2021
+    ("2023-01-01", 2550307),  # reajuste 2022
+    ("2024-01-01", 2680373),  # reajuste 2023
+    ("2025-01-01", 2798309),  # reajuste desde jul-2024
+    ("2026-01-01", 2899048),  # reajuste desde jul-2025
 ]
 df_sml = pd.DataFrame(sml_history, columns=["fecha", "sml"])
 df_sml["fecha"] = pd.to_datetime(df_sml["fecha"])

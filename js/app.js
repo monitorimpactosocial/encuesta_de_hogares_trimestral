@@ -1,6 +1,6 @@
 let rawData = [];
 let cf, dimTrimestre, dimSexo, dimEdad, dimDpto, dimCate;
-let activeTab = 'tab-laboral';
+let activeTab = 'tab-demografia';
 let charts = {}; // Store chart instances
 
 const formatNumber = (num) => new Intl.NumberFormat('es-PY').format(num);
@@ -11,6 +11,14 @@ Chart.defaults.color = '#64748B';
 Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
 Chart.defaults.plugins.tooltip.padding = 12;
 
+const colors = {
+    green: '#10B981', red: '#EF4444', yellow: '#F59E0B',
+    blue: '#3B82F6', purple: '#8B5CF6', teal: '#14B8A6',
+    orange: '#F97316', gray: '#E2E8F0', dark: '#1E293B',
+    emerald: '#059669', pink: '#EC4899', cyan: '#06B6D4'
+};
+const palette = [colors.blue, colors.green, colors.purple, colors.orange, colors.pink, colors.teal, colors.yellow, colors.cyan, colors.red];
+
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     fetchDatos();
@@ -20,16 +28,14 @@ function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // Remove active classes
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
 
-            // Add to clicked
             e.target.classList.add('active');
             activeTab = e.target.getAttribute('data-target');
             document.getElementById(activeTab).classList.add('active');
 
-            // If changing tabs, usually need to resize charts gently
+            // Re-render when tab changes
             Object.values(charts).forEach(c => c.update());
         });
     });
@@ -51,10 +57,7 @@ async function fetchDatos() {
 }
 
 function initCrossfilter() {
-    // rawData is an array of row objects (cohorts)
     cf = crossfilter(rawData);
-
-    // Create dimensions based on our backend groupings
     dimTrimestre = cf.dimension(d => d.trimestre_desc);
     dimSexo = cf.dimension(d => d.sexo);
     dimEdad = cf.dimension(d => d.tramo_edad);
@@ -63,24 +66,16 @@ function initCrossfilter() {
 }
 
 function initUI() {
-    // Populate Trimestres Select
-    const trimestres = getUniqueDimensionValues(dimTrimestre);
-    // Sort historically via their custom numeric strings (assuming format YYYYTrimQ)
-    trimestres.sort();
-
+    const trimestres = getUniqueDimensionValues(dimTrimestre).sort();
     const selectT = document.getElementById('trimestre-select');
-    // Keep 'Histórico Completo' as first option
     trimestres.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t; opt.textContent = t;
         selectT.appendChild(opt);
     });
 
-    // Populate Dpto Select
-    const dptos = getUniqueDimensionValues(dimDpto);
-    dptos.sort();
+    const dptos = getUniqueDimensionValues(dimDpto).sort();
     const selectD = document.getElementById('dpto-select');
-    // Removing the default static options except ALL, then populate
     selectD.innerHTML = '<option value="ALL">Todo el País</option>';
     dptos.forEach(d => {
         if (d !== 'NR') {
@@ -90,36 +85,28 @@ function initUI() {
         }
     });
 
-    // Event Listeners for Filters
     setupFilterEvents('trimestre-select', dimTrimestre, true);
     setupFilterEvents('dpto-select', dimDpto, true);
     setupFilterEvents('cate-select', dimCate, true);
-
     setupButtonGroupEvents('filter-sexo', dimSexo);
     setupButtonGroupEvents('filter-edad', dimEdad);
-
     document.getElementById('btn-reset-filters').addEventListener('click', resetFilters);
 
-    // Initialize empty charts
     initCharts();
 }
 
 function getUniqueDimensionValues(dimension) {
-    const group = dimension.group();
-    return group.all().map(g => g.key);
+    return dimension.group().all().map(g => g.key);
 }
 
-// Event Bindings
 function setupFilterEvents(elementId, dimension, isSelect) {
-    const el = document.getElementById(elementId);
-    el.addEventListener('change', (e) => {
+    document.getElementById(elementId).addEventListener('change', (e) => {
         applyFilter(dimension, e.target.value);
     });
 }
 
 function setupButtonGroupEvents(containerId, dimension) {
-    const container = document.getElementById(containerId);
-    const btns = container.querySelectorAll('button');
+    const btns = document.getElementById(containerId).querySelectorAll('button');
     btns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             btns.forEach(b => b.classList.remove('active'));
@@ -130,11 +117,8 @@ function setupButtonGroupEvents(containerId, dimension) {
 }
 
 function applyFilter(dimension, value) {
-    if (value === 'ALL') {
-        dimension.filterAll();
-    } else {
-        dimension.filterExact(value);
-    }
+    if (value === 'ALL') dimension.filterAll();
+    else dimension.filterExact(value);
     updateDashboard();
 }
 
@@ -145,15 +129,12 @@ function resetFilters() {
     dimDpto.filterAll();
     dimCate.filterAll();
 
-    // Reset UI visually
     document.getElementById('trimestre-select').value = 'ALL';
     document.getElementById('dpto-select').value = 'ALL';
     document.getElementById('cate-select').value = 'ALL';
 
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn, .chip').forEach(b => b.classList.remove('active'));
     document.querySelector('#filter-sexo .filter-btn[data-val="ALL"]').classList.add('active');
-
-    document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
     document.querySelector('#filter-edad .chip[data-val="ALL"]').classList.add('active');
 
     updateDashboard();
@@ -162,21 +143,100 @@ function resetFilters() {
 /* ============================
     Dashboard Rendering
 ============================ */
+function initCharts() {
+    // 1. Demografía
+    charts.sexo = createChart('sexoChart', 'doughnut', { plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+    charts.edad = createChart('edadChart', 'bar', {
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false }, datalabels: { display: false } }
+    });
+    charts.dpto = createChart('dptoChart', 'bar', {
+        indexAxis: 'y',
+        plugins: { legend: { display: false }, datalabels: { display: false } }
+    });
+
+    // 2. Educación
+    charts.eduEdad = createChart('educacionEdadChart', 'bar', {
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false }, datalabels: { display: false } }
+    });
+
+    // 3. Salud
+    charts.saludCate = new Chart(document.getElementById('saludCateChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 100 } },
+            plugins: { datalabels: { display: false } }
+        }
+    });
+    charts.saludDonut = createChart('saludDonutChart', 'doughnut', { cutout: '65%', plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+
+    // 4. Laboral
+    charts.cateOcupa = createChart('cateOcupacionChart', 'bar', {
+        indexAxis: 'y',
+        plugins: { legend: { display: false }, datalabels: { display: false } }
+    });
+
+    // 5. Evolución
+    charts.evolLaboral = createEvolLineChart('evolucionLaboralChart');
+    charts.evolSalud = createEvolLineChart('evolucionSaludChart');
+    charts.smlDonut = createChart('smlDonutChart', 'doughnut', { cutout: '65%', plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+
+    // Stacked Bar SML
+    charts.smlEvol = new Chart(document.getElementById('smlEvolucionChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, max: 100 }
+            },
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold' },
+                    formatter: v => v > 5 ? Math.round(v) + '%' : ''
+                }
+            }
+        }
+    });
+}
+
+function createChart(id, type, extraOptions = {}) {
+    return new Chart(document.getElementById(id).getContext('2d'), {
+        type: type,
+        data: { labels: [], datasets: [] },
+        options: { responsive: true, maintainAspectRatio: false, ...extraOptions }
+    });
+}
+
+function createEvolLineChart(id) {
+    return createChart(id, 'line', {
+        plugins: { datalabels: { display: false } },
+        scales: { y: { beginAtZero: true, suggestedMax: 100 } },
+        elements: { line: { tension: 0.3 } }
+    });
+}
+
+const pctFormatter = (value, ctx) => {
+    let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+    if (sum === 0) return '';
+    return Math.round((value / sum) * 100) + '%';
+};
+
 function updateDashboard() {
-    // Agregate the currently filtered dataset
-    const allFiltered = dimTrimestre.top(Infinity); // gets all records matching current filters
+    const allFiltered = dimTrimestre.top(Infinity);
 
-    let totalPET = 0;
-    let totalPEA = 0;
-    let totalOcupados = 0;
-    let totalDesocupados = 0;
-    let totalAniosPond = 0;
-    let totalAportaIPS = 0;
-    let totalAportaJub = 0;
+    let totalPET = 0, totalPEA = 0, totalOcupados = 0, totalDesocupados = 0;
+    let totalAniosPond = 0, totalAportaIPS = 0, totalAportaJub = 0;
+    let obrerosSML = { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 };
 
-    let obrerosPrivadosSML = { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 };
+    let mapSexo = {}, mapEdadPET = {}, mapDpto = {}, mapEdadAniosPond = {};
+    let mapCateOcupados = {}, mapCateIPS = {}, mapCateJub = {};
 
-    // Summarize global current state
     allFiltered.forEach(row => {
         totalPET += row.personas_pet;
         totalOcupados += row.ocupados;
@@ -186,179 +246,143 @@ function updateDashboard() {
         totalAportaJub += row.aporta_jub;
 
         if (row.categocupa === 'Obrero privado' && row.sml_cat !== 'NR') {
-            if (obrerosPrivadosSML[row.sml_cat] !== undefined) {
-                obrerosPrivadosSML[row.sml_cat] += row.ocupados;
-            }
+            obrerosSML[row.sml_cat] += row.ocupados;
+        }
+
+        mapSexo[row.sexo] = (mapSexo[row.sexo] || 0) + row.personas_pet;
+        mapEdadPET[row.tramo_edad] = (mapEdadPET[row.tramo_edad] || 0) + row.personas_pet;
+        mapDpto[row.departamento] = (mapDpto[row.departamento] || 0) + row.personas_pet;
+        mapEdadAniosPond[row.tramo_edad] = (mapEdadAniosPond[row.tramo_edad] || 0) + row.anios_estudio_pond;
+
+        if (row.categocupa !== 'NR') {
+            mapCateOcupados[row.categocupa] = (mapCateOcupados[row.categocupa] || 0) + row.ocupados;
+            mapCateIPS[row.categocupa] = (mapCateIPS[row.categocupa] || 0) + row.aporta_ips;
+            mapCateJub[row.categocupa] = (mapCateJub[row.categocupa] || 0) + row.aporta_jub;
         }
     });
 
     totalPEA = totalOcupados + totalDesocupados;
 
-    // UPDATE KPIs
-    const tasaOcupacion = totalPET > 0 ? (totalOcupados / totalPET) * 100 : 0;
-    const tasaDesocupacion = totalPEA > 0 ? (totalDesocupados / totalPEA) * 100 : 0;
-    const promAnios = totalPET > 0 ? (totalAniosPond / totalPET) : 0;
-    const covIps = totalOcupados > 0 ? (totalAportaIPS / totalOcupados) * 100 : 0;
-    const covJub = totalOcupados > 0 ? (totalAportaJub / totalOcupados) * 100 : 0;
+    // --- KPIs Update ---
+    document.getElementById('kpi-pob-total').innerText = formatNumber(Math.round(totalPET));
 
-    document.getElementById('kpi-ocupacion').innerText = tasaOcupacion.toFixed(1) + '%';
-    document.getElementById('poblacion-ref').innerText = `Ref: ${formatNumber(Math.round(totalPET))} (PET)`;
-    document.getElementById('kpi-desocupacion').innerText = tasaDesocupacion.toFixed(1) + '%';
+    let topEdad = Object.keys(mapEdadPET).length ? Object.keys(mapEdadPET).reduce((a, b) => mapEdadPET[a] > mapEdadPET[b] ? a : b) : "--";
+    document.getElementById('kpi-edad-mayor').innerText = topEdad;
 
-    document.getElementById('kpi-anios-estudio').innerText = promAnios.toFixed(1) + ' años';
-    document.getElementById('kpi-ips').innerText = covIps.toFixed(1) + '%';
-    document.getElementById('kpi-jubilacion').innerText = covJub.toFixed(1) + '%';
+    let topDpto = Object.keys(mapDpto).length ? Object.keys(mapDpto).reduce((a, b) => mapDpto[a] > mapDpto[b] ? a : b) : "--";
+    document.getElementById('kpi-dpto-mayor').innerText = topDpto;
 
-    // Ocupacion de Obreros SML KPI
-    const totalObreros = obrerosPrivadosSML["Menos de 1 SML"] + obrerosPrivadosSML["1 SML"] + obrerosPrivadosSML["Más de 1 SML"];
-    if (totalObreros > 0) {
-        const pctSupera = (obrerosPrivadosSML["Más de 1 SML"] / totalObreros) * 100;
-        document.getElementById('kpi-supera-sml').innerText = pctSupera.toFixed(1) + '%';
-    } else {
-        document.getElementById('kpi-supera-sml').innerText = 'N/A';
-    }
+    document.getElementById('kpi-anios-estudio').innerText = totalPET > 0 ? (totalAniosPond / totalPET).toFixed(1) : "0";
+    document.getElementById('kpi-ips').innerText = totalOcupados > 0 ? ((totalAportaIPS / totalOcupados) * 100).toFixed(1) + '%' : "0%";
+    document.getElementById('kpi-jubilacion').innerText = totalOcupados > 0 ? ((totalAportaJub / totalOcupados) * 100).toFixed(1) + '%' : "0%";
 
-    // UPDATE HISTORICAL CHARTS (Using grouping logic to keep timeline)
+    document.getElementById('kpi-tft').innerText = totalPET > 0 ? ((totalPEA / totalPET) * 100).toFixed(1) + '%' : "0%";
+    document.getElementById('poblacion-ref-lab').innerText = `Ref: ${formatNumber(Math.round(totalPET))} (PET)`;
+    document.getElementById('kpi-ocupacion').innerText = totalPEA > 0 ? ((totalOcupados / totalPEA) * 100).toFixed(1) + '%' : "0%";
+    document.getElementById('kpi-desocupacion').innerText = totalPEA > 0 ? ((totalDesocupados / totalPEA) * 100).toFixed(1) + '%' : "0%";
+
+    const sumSML = obrerosSML["Menos de 1 SML"] + obrerosSML["1 SML"] + obrerosSML["Más de 1 SML"];
+    document.getElementById('kpi-supera-sml').innerText = sumSML > 0 ? ((obrerosSML["Más de 1 SML"] / sumSML) * 100).toFixed(1) + '%' : 'N/A';
+
+    // --- Tab 1 Demographic Charts ---
+    updateChartData(charts.sexo, Object.keys(mapSexo), [{ data: Object.values(mapSexo), backgroundColor: [colors.blue, colors.pink, colors.yellow] }]);
+
+    const edadSorted = Object.keys(mapEdadPET).sort();
+    updateChartData(charts.edad, edadSorted, [{ label: 'Población (PET)', data: edadSorted.map(k => mapEdadPET[k]), backgroundColor: colors.purple }]);
+
+    const dptoSorted = Object.entries(mapDpto).sort((a, b) => b[1] - a[1]); // Descending
+    updateChartData(charts.dpto, dptoSorted.map(d => d[0]), [{ label: 'Población (PET)', data: dptoSorted.map(d => d[1]), backgroundColor: colors.teal }]);
+
+    // --- Tab 2 Education Charts ---
+    const eduAvg = edadSorted.map(k => mapEdadPET[k] > 0 ? (mapEdadAniosPond[k] / mapEdadPET[k]).toFixed(1) : 0);
+    updateChartData(charts.eduEdad, edadSorted, [{ label: 'Años Promedio', data: eduAvg, backgroundColor: colors.blue }]);
+
+    // --- Tab 3 Health Charts ---
+    const cates = Object.keys(mapCateOcupados).filter(c => c !== "NR").sort();
+    const pctIps = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateIPS[c] / mapCateOcupados[c] * 100) : 0);
+    const pctJub = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateJub[c] / mapCateOcupados[c] * 100) : 0);
+    updateChartData(charts.saludCate, cates, [
+        { label: 'IPS (%)', data: pctIps, backgroundColor: colors.teal },
+        { label: 'Jubilación (%)', data: pctJub, backgroundColor: colors.orange }
+    ]);
+
+    updateChartData(charts.saludDonut, ['Con IPS', 'Sin IPS'], [{
+        data: [totalAportaIPS, totalOcupados - totalAportaIPS],
+        backgroundColor: [colors.teal, colors.gray]
+    }]);
+
+    // --- Tab 4 Laboral Charts ---
+    const cateData = cates.map(c => mapCateOcupados[c]);
+    updateChartData(charts.cateOcupa, cates, [{ label: 'Ocupados', data: cateData, backgroundColor: palette }]);
+
+    // --- Tab 5 Historical Charts ---
     updateHistoricalCharts();
-    updateSMLChart(obrerosPrivadosSML, totalObreros);
+    updateChartData(charts.smlDonut, ['Menos de 1 SML', '1 SML', 'Más de 1 SML'], [{
+        data: [obrerosSML["Menos de 1 SML"], obrerosSML["1 SML"], obrerosSML["Más de 1 SML"]],
+        backgroundColor: [colors.red, colors.yellow, colors.green]
+    }]);
 }
 
-function initCharts() {
-    // 1. Evolución Laboral (Line Chart)
-    const ctxLab = document.getElementById('evolucionLaboralChart').getContext('2d');
-    charts.evolLaboral = new Chart(ctxLab, {
-        type: 'line',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { datalabels: { display: false } }, // Too messy on lines
-            scales: { y: { beginAtZero: true, suggestedMax: 100 } },
-            elements: { line: { tension: 0.3 } }
-        }
-    });
-
-    // 2. Evolución Salud (Line Chart)
-    const ctxSalud = document.getElementById('evolucionSaludChart').getContext('2d');
-    charts.evolSalud = new Chart(ctxSalud, {
-        type: 'line',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { datalabels: { display: false } },
-            scales: { y: { beginAtZero: true, suggestedMax: 100 } },
-            elements: { line: { tension: 0.3 } }
-        }
-    });
-
-    // 3. SML Doughnut
-    const ctxSML = document.getElementById('smlObrerosChart').getContext('2d');
-    charts.smlDonut = new Chart(ctxSML, {
-        type: 'doughnut',
-        data: {
-            labels: ['Menos de 1 SML', '1 SML', 'Más de 1 SML'],
-            datasets: [{
-                data: [0, 0, 0],
-                backgroundColor: ['#EF4444', '#F59E0B', '#10B981'], // Red, Yellow, Green
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: { position: 'bottom' },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold' },
-                    formatter: (value, ctx) => {
-                        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        if (sum === 0) return '';
-                        return Math.round((value / sum) * 100) + '%';
-                    }
-                }
-            }
-        }
-    });
+function updateChartData(chart, labels, datasets) {
+    chart.data.labels = labels;
+    chart.data.datasets = datasets;
+    chart.update();
 }
 
 function updateHistoricalCharts() {
-    // Group everything by TRIMESTRE (Historical timeline)
-    // Warning: if dimTrimestre is currently filtered, grouping only shows results for that filter.
-    // If we want the line chart to show history *given* the other filters (sexo, edad), we group by the dimension.
-
-    // Create a temporary dimension just for grouping timeline without affecting the global dimTrimestre filter
     const dimTimeGrp = cf.dimension(d => d.trimestre_desc);
     const grpTime = dimTimeGrp.group().reduce(
         (p, v) => {
-            p.pet += v.personas_pet;
-            p.pea += (v.ocupados + v.desocupados);
-            p.ocupados += v.ocupados;
-            p.desoc += v.desocupados;
-            p.ips += v.aporta_ips;
-            p.jub += v.aporta_jub;
+            p.pet += v.personas_pet; p.pea += (v.ocupados + v.desocupados);
+            p.ocupados += v.ocupados; p.desoc += v.desocupados;
+            p.ips += v.aporta_ips; p.jub += v.aporta_jub;
+            if (v.categocupa === 'Obrero privado' && v.sml_cat !== 'NR') p.sml[v.sml_cat] += v.ocupados;
             return p;
         },
         (p, v) => {
-            p.pet -= v.personas_pet;
-            p.pea -= (v.ocupados + v.desocupados);
-            p.ocupados -= v.ocupados;
-            p.desoc -= v.desocupados;
-            p.ips -= v.aporta_ips;
-            p.jub -= v.aporta_jub;
+            p.pet -= v.personas_pet; p.pea -= (v.ocupados + v.desocupados);
+            p.ocupados -= v.ocupados; p.desoc -= v.desocupados;
+            p.ips -= v.aporta_ips; p.jub -= v.aporta_jub;
+            if (v.categocupa === 'Obrero privado' && v.sml_cat !== 'NR') p.sml[v.sml_cat] -= v.ocupados;
             return p;
         },
-        () => ({ pet: 0, pea: 0, ocupados: 0, desoc: 0, ips: 0, jub: 0 })
+        () => ({ pet: 0, pea: 0, ocupados: 0, desoc: 0, ips: 0, jub: 0, sml: { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 } })
     );
 
-    const timeData = grpTime.all();
-    dimTimeGrp.dispose(); // clean up
-
-    // Sort chronologically (assuming the strings are alphabetically sortable like 2022Trim2)
-    timeData.sort((a, b) => a.key.localeCompare(b.key));
+    const timeData = grpTime.all().sort((a, b) => a.key.localeCompare(b.key));
+    dimTimeGrp.dispose();
 
     const labels = [];
-    const tasaOcup = [];
-    const tasaDesoc = [];
-    const covIps = [];
-    const covJub = [];
+    const tasaOcup = [], tasaDesoc = [], covIps = [], covJub = [];
+    const smlMenos = [], smlIgual = [], smlMas = [];
 
     timeData.forEach(d => {
         labels.push(d.key);
-        const vals = d.value;
-        tasaOcup.push(vals.pet > 0 ? (vals.ocupados / vals.pet * 100) : 0);
-        tasaDesoc.push(vals.pea > 0 ? (vals.desoc / vals.pea * 100) : 0);
-        covIps.push(vals.ocupados > 0 ? (vals.ips / vals.ocupados * 100) : 0);
-        covJub.push(vals.ocupados > 0 ? (vals.jub / vals.ocupados * 100) : 0);
+        const v = d.value;
+        tasaOcup.push(v.pet > 0 ? (v.ocupados / v.pet * 100) : 0);
+        tasaDesoc.push(v.pea > 0 ? (v.desoc / v.pea * 100) : 0);
+        covIps.push(v.ocupados > 0 ? (v.ips / v.ocupados * 100) : 0);
+        covJub.push(v.ocupados > 0 ? (v.jub / v.ocupados * 100) : 0);
+
+        const tSml = v.sml["Menos de 1 SML"] + v.sml["1 SML"] + v.sml["Más de 1 SML"];
+        smlMenos.push(tSml > 0 ? (v.sml["Menos de 1 SML"] / tSml * 100) : 0);
+        smlIgual.push(tSml > 0 ? (v.sml["1 SML"] / tSml * 100) : 0);
+        smlMas.push(tSml > 0 ? (v.sml["Más de 1 SML"] / tSml * 100) : 0);
     });
 
-    // Update Laboral Line Chart
-    charts.evolLaboral.data.labels = labels;
-    charts.evolLaboral.data.datasets = [
-        { label: 'T. Ocupación (%)', data: tasaOcup, borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true },
-        { label: 'T. Desocupación (%)', data: tasaDesoc, borderColor: '#EF4444', backgroundColor: 'transparent' }
-    ];
-    charts.evolLaboral.update();
+    updateChartData(charts.evolLaboral, labels, [
+        { label: 'T. Ocupación (%)', data: tasaOcup, borderColor: colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true },
+        { label: 'T. Desocupación (%)', data: tasaDesoc, borderColor: colors.red, backgroundColor: 'transparent' }
+    ]);
 
-    // Update Salud Line Chart
-    charts.evolSalud.data.labels = labels;
-    charts.evolSalud.data.datasets = [
-        { label: 'Cobertura IPS (%)', data: covIps, borderColor: '#14B8A6', backgroundColor: 'transparent' },
-        { label: 'Aporte Jubilación (%)', data: covJub, borderColor: '#F97316', backgroundColor: 'transparent' }
-    ];
-    charts.evolSalud.update();
-}
+    updateChartData(charts.evolSalud, labels, [
+        { label: 'Cobertura IPS (%)', data: covIps, borderColor: colors.teal, backgroundColor: 'transparent' },
+        { label: 'Aporte Jubilación (%)', data: covJub, borderColor: colors.orange, backgroundColor: 'transparent' }
+    ]);
 
-function updateSMLChart(dataObj, total) {
-    if (total > 0) {
-        charts.smlDonut.data.datasets[0].data = [
-            dataObj["Menos de 1 SML"],
-            dataObj["1 SML"],
-            dataObj["Más de 1 SML"]
-        ];
-    } else {
-        charts.smlDonut.data.datasets[0].data = [0, 0, 0];
-    }
-    charts.smlDonut.update();
+    updateChartData(charts.smlEvol, labels, [
+        { label: 'Menos de 1 SML (%)', data: smlMenos, backgroundColor: colors.red },
+        { label: '1 SML (%)', data: smlIgual, backgroundColor: colors.yellow },
+        { label: 'Más de 1 SML (%)', data: smlMas, backgroundColor: colors.green }
+    ]);
 }
