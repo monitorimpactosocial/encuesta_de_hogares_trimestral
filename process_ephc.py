@@ -76,9 +76,9 @@ def get_dpto_from_estgeo(estgeo):
     if pd.isna(estgeo): return "NR"
     val = int(estgeo)
     if val == 1: return "Asunción"
-    # Integer division by 5 gives category closely matching dept id if we shift
+    # Integer division by 10 gives the exact department ID for Paraguay (1 to 15)
     # 11 -> dept 1, 16 -> dept 1, 21 -> dept 2, 26 -> dept 2
-    dpto_num = val // 5 - 1
+    dpto_num = val // 10
     return map_dpto.get(dpto_num, "NR")
 
 def get_tramo_edad(edad):
