@@ -4,44 +4,70 @@ let maps = {};
 let geojsonLayers = {};
 let cf, dimTrimestre, dimSexo, dimEdad, dimDpto, dimCate;
 let activeTab = 'tab-demografia';
-let charts = {}; // Store chart instances
+let charts = {};
 
 const formatNumber = (num) => new Intl.NumberFormat('es-PY').format(num);
 
+// Premium dark Chart.js defaults
 Chart.register(ChartDataLabels);
 Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.color = '#64748B';
-Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(5,8,15,0.95)';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
 Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.titleColor = '#f0f6ff';
+Chart.defaults.plugins.tooltip.bodyColor = '#94a3b8';
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
 
 const colors = {
-    green: '#10B981', red: '#EF4444', yellow: '#F59E0B',
-    blue: '#3B82F6', purple: '#8B5CF6', teal: '#14B8A6',
-    orange: '#F97316', gray: '#E2E8F0', dark: '#1E293B',
-    emerald: '#059669', pink: '#EC4899', cyan: '#06B6D4'
+    emerald: '#34d399', emeraldDark: '#059669',
+    blue: '#60a5fa', blueDark: '#2563eb',
+    purple: '#a78bfa', teal: '#2dd4bf',
+    orange: '#fb923c', red: '#f87171',
+    yellow: '#fbbf24', pink: '#f472b6',
+    cyan: '#67e8f9', gray: '#1e293b'
 };
-const palette = [colors.blue, colors.green, colors.purple, colors.orange, colors.pink, colors.teal, colors.yellow, colors.cyan, colors.red];
+const palette = [
+    colors.emerald, colors.blue, colors.purple, colors.orange,
+    colors.pink, colors.teal, colors.yellow, colors.cyan, colors.red
+];
 
 document.addEventListener('DOMContentLoaded', () => {
+    initSidebarToggle();
     initTabs();
     fetchDatos();
 });
 
+function initSidebarToggle() {
+    const btn = document.getElementById('sidebar-toggle');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+        });
+    }
+}
+
 function initTabs() {
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabBtns = document.querySelectorAll('.tab-nav-btn');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const target = e.currentTarget;
+            document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
 
-            e.target.classList.add('active');
-            activeTab = e.target.getAttribute('data-target');
+            target.classList.add('active');
+            activeTab = target.getAttribute('data-target');
             document.getElementById(activeTab).classList.add('active');
 
-            // Re-render when tab changes
+            // Update topbar title
+            const topTitle = document.getElementById('tab-current-name');
+            if (topTitle) topTitle.textContent = target.textContent.trim();
+
+            // Re-render charts + invalidate maps
             Object.values(charts).forEach(c => c.update());
-            if (maps.demografia) setTimeout(() => maps.demografia.invalidateSize(), 150);
-            if (maps.laboral) setTimeout(() => maps.laboral.invalidateSize(), 150);
+            if (maps.demografia) setTimeout(() => maps.demografia.invalidateSize(), 200);
+            if (maps.laboral) setTimeout(() => maps.laboral.invalidateSize(), 200);
         });
     });
 }
@@ -121,8 +147,8 @@ function setupButtonGroupEvents(containerId, dimension) {
     btns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             btns.forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            applyFilter(dimension, e.target.getAttribute('data-val'));
+            e.currentTarget.classList.add('active');
+            applyFilter(dimension, e.currentTarget.getAttribute('data-val'));
         });
     });
 }
@@ -144,9 +170,12 @@ function resetFilters() {
     document.getElementById('dpto-select').value = 'ALL';
     document.getElementById('cate-select').value = 'ALL';
 
-    document.querySelectorAll('.filter-btn, .chip').forEach(b => b.classList.remove('active'));
-    document.querySelector('#filter-sexo .filter-btn[data-val="ALL"]').classList.add('active');
-    document.querySelector('#filter-edad .chip[data-val="ALL"]').classList.add('active');
+    // Toggle btns in sidebar
+    document.querySelectorAll('.toggle-btn, .age-chip').forEach(b => b.classList.remove('active'));
+    const defaultSexo = document.querySelector('#filter-sexo .toggle-btn[data-val="ALL"]');
+    const defaultEdad = document.querySelector('#filter-edad .age-chip[data-val="ALL"]');
+    if (defaultSexo) defaultSexo.classList.add('active');
+    if (defaultEdad) defaultEdad.classList.add('active');
 
     updateDashboard();
 }
@@ -154,21 +183,44 @@ function resetFilters() {
 /* ============================
     Dashboard Rendering
 ============================ */
+
+const darkScale = {
+    grid: { color: 'rgba(255,255,255,0.05)' },
+    ticks: { color: '#64748b' },
+    border: { color: 'rgba(255,255,255,0.05)' }
+};
+
 function initCharts() {
     // 1. Demografía
-    charts.sexo = createChart('sexoChart', 'doughnut', { plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+    charts.sexo = createChart('sexoChart', 'doughnut', {
+        cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
+            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
+        }
+    });
     charts.edad = createChart('edadChart', 'bar', {
-        scales: { y: { beginAtZero: true } },
+        scales: {
+            y: { beginAtZero: true, ...darkScale },
+            x: { ...darkScale }
+        },
         plugins: { legend: { display: false }, datalabels: { display: false } }
     });
     charts.dpto = createChart('dptoChart', 'bar', {
         indexAxis: 'y',
+        scales: {
+            x: { beginAtZero: true, ...darkScale },
+            y: { ...darkScale, ticks: { color: '#94a3b8', font: { size: 10 } } }
+        },
         plugins: { legend: { display: false }, datalabels: { display: false } }
     });
 
     // 2. Educación
     charts.eduEdad = createChart('educacionEdadChart', 'bar', {
-        scales: { y: { beginAtZero: true } },
+        scales: {
+            y: { beginAtZero: true, ...darkScale },
+            x: { ...darkScale }
+        },
         plugins: { legend: { display: false }, datalabels: { display: false } }
     });
 
@@ -178,22 +230,48 @@ function initCharts() {
         data: { labels: [], datasets: [] },
         options: {
             responsive: true, maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, max: 100 } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ...darkScale },
+                x: { ...darkScale }
+            },
             plugins: { datalabels: { display: false } }
         }
     });
-    charts.saludDonut = createChart('saludDonutChart', 'doughnut', { cutout: '65%', plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+    charts.saludDonut = createChart('saludDonutChart', 'doughnut', {
+        cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
+            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
+        }
+    });
 
     // 4. Laboral
     charts.cateOcupa = createChart('cateOcupacionChart', 'bar', {
         indexAxis: 'y',
+        scales: {
+            x: { beginAtZero: true, ...darkScale },
+            y: { ...darkScale }
+        },
         plugins: { legend: { display: false }, datalabels: { display: false } }
+    });
+    charts.ocuDesoc = createChart('ocuDesocDonutChart', 'doughnut', {
+        cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
+            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
+        }
     });
 
     // 5. Evolución
     charts.evolLaboral = createEvolLineChart('evolucionLaboralChart');
     charts.evolSalud = createEvolLineChart('evolucionSaludChart');
-    charts.smlDonut = createChart('smlDonutChart', 'doughnut', { cutout: '65%', plugins: { legend: { position: 'bottom' }, datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold' } } } });
+    charts.smlDonut = createChart('smlDonutChart', 'doughnut', {
+        cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12 } },
+            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 11 } }
+        }
+    });
 
     // Stacked Bar SML
     charts.smlEvol = new Chart(document.getElementById('smlEvolucionChart').getContext('2d'), {
@@ -202,13 +280,14 @@ function initCharts() {
         options: {
             responsive: true, maintainAspectRatio: false,
             scales: {
-                x: { stacked: true },
-                y: { stacked: true, beginAtZero: true, max: 100 }
+                x: { stacked: true, ...darkScale },
+                y: { stacked: true, beginAtZero: true, max: 100, ...darkScale }
             },
             plugins: {
+                legend: { labels: { color: '#94a3b8', padding: 12 } },
                 datalabels: {
                     color: '#fff',
-                    font: { weight: 'bold' },
+                    font: { weight: 'bold', size: 10 },
                     formatter: v => v > 5 ? Math.round(v) + '%' : ''
                 }
             }
@@ -226,9 +305,15 @@ function createChart(id, type, extraOptions = {}) {
 
 function createEvolLineChart(id) {
     return createChart(id, 'line', {
-        plugins: { datalabels: { display: false } },
-        scales: { y: { beginAtZero: true, suggestedMax: 100 } },
-        elements: { line: { tension: 0.3 } }
+        plugins: {
+            datalabels: { display: false },
+            legend: { labels: { color: '#94a3b8', padding: 12 } }
+        },
+        scales: {
+            y: { beginAtZero: true, suggestedMax: 100, ...darkScale },
+            x: { ...darkScale }
+        },
+        elements: { line: { tension: 0.35, borderWidth: 2 }, point: { radius: 3, hoverRadius: 6 } }
     });
 }
 
@@ -296,42 +381,88 @@ function updateDashboard() {
     const sumSML = obrerosSML["Menos de 1 SML"] + obrerosSML["1 SML"] + obrerosSML["Más de 1 SML"];
     document.getElementById('kpi-supera-sml').innerText = sumSML > 0 ? ((obrerosSML["Más de 1 SML"] / sumSML) * 100).toFixed(1) + '%' : 'N/A';
 
+    // New: top occupational category for laboral KPI card
+    const cateEl = document.getElementById('kpi-top-cate');
+    if (cateEl) {
+        const topCate = Object.keys(mapCateOcupados).filter(c => c !== 'NR').length
+            ? Object.keys(mapCateOcupados).filter(c => c !== 'NR').reduce((a, b) => mapCateOcupados[a] > mapCateOcupados[b] ? a : b)
+            : "--";
+        cateEl.innerText = topCate;
+    }
+
     // --- Tab 1 Demographic Charts ---
-    updateChartData(charts.sexo, Object.keys(mapSexo), [{ data: Object.values(mapSexo), backgroundColor: [colors.blue, colors.pink, colors.yellow] }]);
+    updateChartData(charts.sexo, Object.keys(mapSexo), [{
+        data: Object.values(mapSexo),
+        backgroundColor: [colors.blue, colors.pink, colors.yellow],
+        borderWidth: 0, hoverOffset: 8
+    }]);
 
     const edadSorted = Object.keys(mapEdadPET).sort();
-    updateChartData(charts.edad, edadSorted, [{ label: 'Población (PET)', data: edadSorted.map(k => mapEdadPET[k]), backgroundColor: colors.purple }]);
+    updateChartData(charts.edad, edadSorted, [{
+        label: 'Población (PET)',
+        data: edadSorted.map(k => mapEdadPET[k]),
+        backgroundColor: 'rgba(167,139,250,0.7)',
+        borderColor: colors.purple,
+        borderWidth: 1,
+        borderRadius: 4
+    }]);
 
-    const dptoSorted = Object.entries(mapDpto).sort((a, b) => b[1] - a[1]); // Descending
-    updateChartData(charts.dpto, dptoSorted.map(d => d[0]), [{ label: 'Población (PET)', data: dptoSorted.map(d => d[1]), backgroundColor: colors.teal }]);
+    const dptoSorted = Object.entries(mapDpto).filter(([k]) => k !== 'NR').sort((a, b) => b[1] - a[1]).slice(0, 10);
+    updateChartData(charts.dpto, dptoSorted.map(d => d[0]), [{
+        label: 'Población (PET)',
+        data: dptoSorted.map(d => d[1]),
+        backgroundColor: 'rgba(45,212,191,0.7)',
+        borderColor: colors.teal,
+        borderWidth: 1,
+        borderRadius: 3
+    }]);
 
     // --- Tab 2 Education Charts ---
     const eduAvg = edadSorted.map(k => mapEdadPET[k] > 0 ? (mapEdadAniosPond[k] / mapEdadPET[k]).toFixed(1) : 0);
-    updateChartData(charts.eduEdad, edadSorted, [{ label: 'Años Promedio', data: eduAvg, backgroundColor: colors.blue }]);
+    updateChartData(charts.eduEdad, edadSorted, [{
+        label: 'Años Promedio de Estudio',
+        data: eduAvg,
+        backgroundColor: 'rgba(96,165,250,0.7)',
+        borderColor: colors.blue,
+        borderWidth: 1,
+        borderRadius: 4
+    }]);
 
     // --- Tab 3 Health Charts ---
     const cates = Object.keys(mapCateOcupados).filter(c => c !== "NR").sort();
     const pctIps = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateIPS[c] / mapCateOcupados[c] * 100) : 0);
     const pctJub = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateJub[c] / mapCateOcupados[c] * 100) : 0);
     updateChartData(charts.saludCate, cates, [
-        { label: 'IPS (%)', data: pctIps, backgroundColor: colors.teal },
-        { label: 'Jubilación (%)', data: pctJub, backgroundColor: colors.orange }
+        { label: 'IPS (%)', data: pctIps, backgroundColor: 'rgba(45,212,191,0.7)', borderColor: colors.teal, borderWidth: 1, borderRadius: 3 },
+        { label: 'Jubilación (%)', data: pctJub, backgroundColor: 'rgba(251,146,60,0.7)', borderColor: colors.orange, borderWidth: 1, borderRadius: 3 }
     ]);
 
     updateChartData(charts.saludDonut, ['Con IPS', 'Sin IPS'], [{
         data: [totalAportaIPS, totalOcupados - totalAportaIPS],
-        backgroundColor: [colors.teal, colors.gray]
+        backgroundColor: [colors.teal, '#1e293b'],
+        borderColor: ['rgba(45,212,191,0.3)', 'rgba(255,255,255,0.03)'],
+        borderWidth: 1, hoverOffset: 8
     }]);
 
     // --- Tab 4 Laboral Charts ---
     const cateData = cates.map(c => mapCateOcupados[c]);
-    updateChartData(charts.cateOcupa, cates, [{ label: 'Ocupados', data: cateData, backgroundColor: palette }]);
+    updateChartData(charts.cateOcupa, cates, [{
+        label: 'Ocupados', data: cateData, backgroundColor: palette.map(c => c + 'b3'), borderWidth: 0, borderRadius: 4
+    }]);
+    updateChartData(charts.ocuDesoc, ['Ocupados', 'Desocupados'], [{
+        data: [totalOcupados, totalDesocupados],
+        backgroundColor: [colors.emerald, colors.red],
+        borderColor: ['rgba(52,211,153,0.3)', 'rgba(248,113,113,0.3)'],
+        borderWidth: 1, hoverOffset: 8
+    }]);
 
     // --- Tab 5 Historical Charts ---
     updateHistoricalCharts();
     updateChartData(charts.smlDonut, ['Menos de 1 SML', '1 SML', 'Más de 1 SML'], [{
         data: [obrerosSML["Menos de 1 SML"], obrerosSML["1 SML"], obrerosSML["Más de 1 SML"]],
-        backgroundColor: [colors.red, colors.yellow, colors.green]
+        backgroundColor: [colors.red, colors.yellow, colors.emerald],
+        borderColor: ['rgba(248,113,113,0.3)', 'rgba(251,191,36,0.3)', 'rgba(52,211,153,0.3)'],
+        borderWidth: 1, hoverOffset: 8
     }]);
 
     updateMaps(mapDpto, mapDptoPEA);
