@@ -2,13 +2,11 @@ import os
 import pyreadstat
 import pandas as pd
 import json
-import datetime
 import numpy as np
 
 DIR_PATH = ".."
 OUTPUT_PATH = "datos_consolidados.json"
 
-# Custom JSON Encoder for numpy types
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.integer):
@@ -19,36 +17,31 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-# Salario Minimo Legal history
 sml_history = [
     ("2021-07-01", 2289324),
     ("2022-07-01", 2550307),
     ("2023-07-01", 2680373),
     ("2024-06-01", 2798309),
-    ("2025-07-01", 2798309) # Assuming same until new update
+    ("2025-07-01", 2798309)
 ]
-# Convert to dataframe and sort
 df_sml = pd.DataFrame(sml_history, columns=["fecha", "sml"])
 df_sml["fecha"] = pd.to_datetime(df_sml["fecha"])
 df_sml = df_sml.sort_values(by="fecha")
 
 def get_sml(anio, mes):
-    # Devuelve el SML aplicable para un año y mes específico
     fecha_consulta = pd.to_datetime(f"{anio}-{mes:02d}-01")
-    # Filtramos los que son menores o iguales a la fecha de consulta
     smls_aplicables = df_sml[df_sml["fecha"] <= fecha_consulta]
     if smls_aplicables.empty:
-        return df_sml.iloc[0]["sml"] # Default
+        return df_sml.iloc[0]["sml"]
     return smls_aplicables.iloc[-1]["sml"]
 
 def get_mes_trimestre(trimestre):
-    # Mapeo del R script
     t = (trimestre - 1) % 4 + 1
     if t == 1: return 2
     if t == 2: return 5
     if t == 3: return 8
     if t == 4: return 11
-    return 2 # fallback
+    return 2
 
 map_categocupa = {
     1: "Obrero público",
@@ -65,9 +58,37 @@ map_sexo = {
     6: "Mujeres"
 }
 
-resultados_trimestrales = []
-sml_data_grouped = []
-categocupa_data_grouped = []
+map_dpto = {
+    1: "Concepción", 2: "San Pedro", 3: "Cordillera", 4: "Guairá", 
+    5: "Caaguazú", 6: "Caazapá", 7: "Itapúa", 8: "Misiones", 
+    9: "Paraguarí", 10: "Alto Paraná", 11: "Central", 12: "Ñeembucú", 
+    13: "Amambay", 14: "Canindeyú", 15: "Pdte. Hayes", 0: "Asunción"
+}
+def get_dpto_from_estgeo(estgeo):
+    # ESTGEO format: Asuncion=1. Rest: Urbana ends in 1, Rural ends in 6. (e.g., 11=Concepcion Urbano)
+    if pd.isna(estgeo): return "NR"
+    val = int(estgeo)
+    if val == 1: return "Asunción"
+    # Integer division by 5 gives category closely matching dept id if we shift
+    # 11 -> dept 1, 16 -> dept 1, 21 -> dept 2, 26 -> dept 2
+    dpto_num = val // 5 - 1
+    return map_dpto.get(dpto_num, "NR")
+
+def get_tramo_edad(edad):
+    if pd.isna(edad): return "NR"
+    e = int(edad)
+    if e < 15: return "< 15"
+    elif e <= 24: return "15-24"
+    elif e <= 34: return "25-34"
+    elif e <= 44: return "35-44"
+    elif e <= 54: return "45-54"
+    elif e <= 64: return "55-64"
+    else: return "65+"
+
+# Structure to hold heavily grouped data
+# Instead of doing individual groups, we will build a single flattened table of aggregations
+# GroupBy Keys: Trimestre, Sexo, Edad, Dpto, CategOcupa
+master_cohorts = []
 
 archivos_sav = [f for f in os.listdir(DIR_PATH) if f.upper().endswith(".SAV")]
 
@@ -93,109 +114,106 @@ for sav_file in archivos_sav:
         if len(df_anio) == 0 or len(df_trim) == 0: continue
             
         anio = int(df_anio[0])
-        # Ajustamos porque algunas bases dicen "anio 2022" pero trimestre es "5" en vez de "1", el mod nos da el verdadero.
         trim_raw = int(df_trim[0])
         trim_real = int((trim_raw - 1) % 4 + 1)
         
         mes_intermedio = get_mes_trimestre(trim_real)
         sml_vigente = float(get_sml(anio, mes_intermedio))
-        
         trimestre_desc = f"{anio}Trim{trim_real}"
         
-        # Población >= 15
+        # Población General Base >= 15 for PEA (Though we keep all for education context if needed, but standard is >=15)
         df = df[df['EDAD'] > 14].copy()
         
-        # Identificar ocupados, desocupados
         df['ocupado'] = ((df['A02'] == 1) | (df['A03'] == 1) | (df['A04'] == 1))
         df['desocupado'] = (~df['ocupado']) & (df['A08'] == 1)
+        df['inactivo'] = ~(df['ocupado'] | df['desocupado'])
         
-        # Mapeos categóricos
         if "CATE_PEA" in df.columns:
             df['categocupa'] = df['CATE_PEA'].map(map_categocupa).fillna("NR")
         else:
             df['categocupa'] = "NR"
             
         df['sexo'] = df['P06'].map(map_sexo).fillna("NR")
+        df['tramo_edad'] = df['EDAD'].apply(get_tramo_edad)
         
-        # Filtro Ingreso (e01aimde) > 0 para asalariados / ocupados
+        estgeo_col = "ESTGEO" if "ESTGEO" in df.columns else None
+        if estgeo_col:
+            df['departamento'] = df[estgeo_col].apply(get_dpto_from_estgeo)
+        else:
+            df['departamento'] = "NR"
+            
+        # SML Classification
+        df['ingreso'] = 0
+        df['sml_cat'] = "NR"
         ingreso_col = "E01AIMDE" if "E01AIMDE" in df.columns else ""
         if ingreso_col in df.columns:
             df['ingreso'] = pd.to_numeric(df[ingreso_col], errors='coerce').fillna(0)
             
-            # Clasificacion SML solo para obreros privados (R script focus)
-            obreros_privados = df[(df['categocupa'] == 'Obrero privado') & (df['ingreso'] > 0)].copy()
-            
-            # Clasificacion
-            def clasificar_sml(ing):
-                if ing < 0.90 * sml_vigente: return "Menos de 1 SML"
-                if ing <= 1.10 * sml_vigente: return "1 SML"
+            def clasificar_sml(row):
+                if row['categocupa'] != 'Obrero privado' or row['ingreso'] <= 0: return "NR"
+                if row['ingreso'] < 0.90 * sml_vigente: return "Menos de 1 SML"
+                if row['ingreso'] <= 1.10 * sml_vigente: return "1 SML"
                 return "Más de 1 SML"
                 
-            obreros_privados['sml_cat'] = obreros_privados['ingreso'].apply(clasificar_sml)
+            df['sml_cat'] = df.apply(clasificar_sml, axis=1)
+
+        # EDUCACION & PREVISION SOCIAL (Placeholder mappings based on EPHC standards)
+        # B10: Aporta a jubilacion (Ocupación principal) 1=Si, 6=No
+        df['aporta_jubilacion'] = 0
+        if "B10" in df.columns:
+            df.loc[df['B10'] == 1, 'aporta_jubilacion'] = df.loc[df['B10'] == 1, 'PESO']
             
-            # Agrupar por categoria SML
-            sml_grp = obreros_privados.groupby('sml_cat')['PESO'].sum().reset_index()
-            total_pesos = sml_grp['PESO'].sum()
-            for _, row in sml_grp.iterrows():
-                sml_data_grouped.append({
-                    "trimestre_desc": str(trimestre_desc),
-                    "anio": int(anio),
-                    "trimestre": int(trim_real),
-                    "sml_vigente": float(sml_vigente),
-                    "categoria": str(row['sml_cat']),
-                    "personas": round(float(row['PESO']), 2),
-                    "porcentaje": round(float((row['PESO'] / total_pesos * 100)), 1) if float(total_pesos) > 0 else 0.0
-                })
-        
-        # Guardar Ocupados por Categoría Ocupacional
-        ocupados = df[df['ocupado']].copy()
-        cate_grp = ocupados.groupby('categocupa')['PESO'].sum().reset_index()
-        for _, row in cate_grp.iterrows():
-            categocupa_data_grouped.append({
-                "trimestre_desc": str(trimestre_desc),
-                "anio": int(anio),
-                "trimestre": int(trim_real),
-                "categocupa": str(row['categocupa']),
-                "personas": round(float(row['PESO']), 2)
-            })
+        # Seguro Médico (S01A... IPS) - Generalmente EPHC usa un modulo de salud, revisaremos si S01S/IPS existe.
+        # Often it is B11 for Caja de aportes (1=IPS). So if B11 == 1 -> Aporta IPS
+        df['aporta_ips'] = 0
+        if "B11" in df.columns:
+            df.loc[df['B11'] == 1, 'aporta_ips'] = df.loc[df['B11'] == 1, 'PESO']
+            
+        # Años de estudio (AÑOEST o ED05 etc)
+        df['anios_estudio_total'] = 0 # Weight multiplied to calculate mean later
+        anioest_col = "AÑOEST" if "AÑOEST" in df.columns else "ANIOEST" if "ANIOEST" in df.columns else None
+        if anioest_col in df.columns:
+            df['anios_val'] = pd.to_numeric(df[anioest_col], errors='coerce').fillna(0)
+            df['anios_estudio_total'] = df['anios_val'] * df['PESO']
+            
+        # Aggregate dynamically by groups. 
+        # For a cross-filtering dashboard, we pre-aggregate grouping by the filter dimensions.
+        grouped = df.groupby(['sexo', 'tramo_edad', 'departamento', 'categocupa', 'sml_cat']).agg(
+            personas_pet=('PESO', 'sum'),
+            ocupados=('PESO', lambda x: x[df.loc[x.index, 'ocupado']].sum()),
+            desocupados=('PESO', lambda x: x[df.loc[x.index, 'desocupado']].sum()),
+            inactivos=('PESO', lambda x: x[df.loc[x.index, 'inactivo']].sum()),
+            aporta_jub=('aporta_jubilacion', 'sum'),
+            aporta_ips=('aporta_ips', 'sum'),
+            anios_estudio_pond=('anios_estudio_total', 'sum') # To get average: divide by personas_pet
+        ).reset_index()
 
-        # Global stats
-        pet_total = float(df['PESO'].sum())
-        pea_total = float(df[df['ocupado'] | df['desocupado']]['PESO'].sum())
-        ocupados_total = float(df[df['ocupado']]['PESO'].sum())
-        desocupados_total = float(df[df['desocupado']]['PESO'].sum())
+        # Append global info for merging
+        grouped['trimestre_desc'] = trimestre_desc
+        grouped['anio'] = anio
+        grouped['trimestre_num'] = trim_real
+        grouped['sml_vigente'] = sml_vigente
         
-        resultados_trimestrales.append({
-            "trimestre_desc": str(trimestre_desc),
-            "anio": int(anio),
-            "trimestre": int(trim_real),
-            "sml_vigente": float(sml_vigente),
-            "tasa_ocupacion": round(float(ocupados_total / pet_total * 100), 2) if pet_total > 0 else 0.0,
-            "tasa_desocupacion": round(float(desocupados_total / pea_total * 100), 2) if pea_total > 0 else 0.0
-        })
-
+        master_cohorts.append(grouped)
+        
     except Exception as e:
         print(f"Error procesando {sav_file}: {e}")
 
-# Sorting all collections
-resultados_trimestrales = sorted(resultados_trimestrales, key=lambda x: (x['anio'], x['trimestre']))
-sml_data_grouped = sorted(sml_data_grouped, key=lambda x: (x['anio'], x['trimestre']))
-categocupa_data_grouped = sorted(categocupa_data_grouped, key=lambda x: (x['anio'], x['trimestre']))
+if not master_cohorts:
+    print("No data processed.")
+    exit()
 
-# Ensure categorical percentages across category data
-df_cate = pd.DataFrame(categocupa_data_grouped)
-if not df_cate.empty:
-    df_cate['total_periodo'] = df_cate.groupby('trimestre_desc')['personas'].transform('sum')
-    df_cate['porcentaje'] = (df_cate['personas'] / df_cate['total_periodo'] * 100).round(1)
-    categocupa_data_grouped = df_cate.to_dict('records')
+# Combine all into a massive aggregated dataframe
+df_master = pd.concat(master_cohorts, ignore_index=True)
 
-salida_json = {
-    "globales": resultados_trimestrales,
-    "sml_obreros_privados": sml_data_grouped,
-    "categorias_ocupacionales": categocupa_data_grouped
-}
+# Clean up and export
+df_master = df_master.sort_values(by=['anio', 'trimestre_num'])
+
+# To keep the JSON manageable and fast for the frontend, we export this cross-tabulated dataset.
+# The frontend using Crossfilter.js or raw JS will sum up metrics by chosen dimension.
+export_data = df_master.to_dict('records')
 
 with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-    json.dump(salida_json, f, indent=4, ensure_ascii=False, cls=NpEncoder)
+    json.dump(export_data, f, indent=4, ensure_ascii=False, cls=NpEncoder)
 
-print(f"\nDatos de Monitoreo extraídos exitosamente y guardados en: {OUTPUT_PATH}")
+print(f"\nDatos Multidimensionales generados en: {OUTPUT_PATH} ({len(export_data)} pre-agrupaciones de filtro)")
