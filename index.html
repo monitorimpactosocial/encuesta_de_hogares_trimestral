@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Social EPHC - Impacto Paracel</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#4ADE80" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M2 17L12 22L22 17" stroke="#4ADE80" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M2 12L12 17L22 12" stroke="#4ADE80" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Monitoreo Social EPHC</span>
+            </div>
+            <div class="user-profile">
+                <span>Paracel Dashboard</span>
+                <div class="avatar">P</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+
+        <div class="header-section">
+            <h1>Indicadores del Mercado Laboral (EPHC)</h1>
+            <p>Análisis de las categorías de ocupación y el impacto del Salario Mínimo Legal (SML) en el sector de
+                Obreros Privados.</p>
+
+            <div class="filter-bar">
+                <label for="trimestre-select">Datos al periodo:</label>
+                <select id="trimestre-select">
+                    <option value="latest">Cargando datos...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="kpi-card">
+                <div class="kpi-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Tasa de Ocupación</h3>
+                    <div class="value" id="kpi-ocupacion">-- %</div>
+                    <div class="trend positive" id="trend-ocupacion">--</div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Tasa de Desocupación</h3>
+                    <div class="value" id="kpi-desocupacion">-- %</div>
+                    <div class="trend negative" id="trend-desocupacion">--</div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon yellow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Salario Mínimo Legal (Vigente)</h3>
+                    <div class="value" id="kpi-sml">-- ₲</div>
+                    <div class="trend neutral" id="trend-sml">Ref. Histórica</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <section class="charts-grid">
+
+            <div class="chart-card large">
+                <div class="chart-header">
+                    <h2>Proporción de Obreros Privados (Ingresos según SML)</h2>
+                    <p>Distribución de obreros privados que ganan Menos de 1 SML, 1 SML, y Más de 1 SML.</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="smlChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2>Composición Ocupacional</h2>
+                    <p>Distribución de ocupados (Periodo Seleccionado)</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="cateOcupaDonutChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card large" style="grid-column: span 3;">
+                <div class="chart-header">
+                    <h2>Evolución de Ocupados por Categoría Ocupacional</h2>
+                    <p>Porcentaje de representación histórica por trimestre.</p>
+                </div>
+                <div class="chart-body" style="min-height: 400px;">
+                    <canvas id="cateOcupaStackChart"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            <p>Fuente de Datos: Encuesta Permanente de Hogares Continua (EPHC) - Instituto Nacional de Estadística
+                (INE), Paraguay.</p>
+            <p>Adaptado con lógica R de categorizaciones - Monitoreo de Impacto Social Paracel.</p>
+        </footer>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

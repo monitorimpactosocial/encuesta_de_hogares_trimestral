@@ -1,0 +1,162 @@
+--- VARIABLES AND LABELS ---
+UPM: Unidad primaria de muestreo seleccionada
+NVIVI: Número de orden de la vivienda seleccionada
+NHOGA: Número de orden del hogar dentro de la vivienda seleccionada
+TRIMESTRE: Trimestre
+RONDA: Ronda
+ANIO: Año de la Encuesta
+AREA: AREA de Residencia
+ESTGEO: Estratos Geográficos
+L02: Línea de la persona
+P02: Edad
+P03: Relación de parentesco
+P06: Sexo
+P09: Estado civil
+A01: Responde por sí misma
+A01A: Línea de la persona que responde
+A02: Realizó algún trabajo en los últimos 7 días
+A03: Trabajó al menos 1 hora en los últimos 7 días
+A04: Tiene trabajo aunque no haya realizado en los 7 días
+A04B: Cuánto tiempo cree que duraría su ausencia en el trabajo
+A04A: Cantidad de trabajos/empleos tenía
+A05: Habría podido trabajar en los últimos 7 días
+A06: Razón por la que no habría podido trabajar
+A06E: Especifique A06
+A07: Hizo algo para conseguir trabajo en los últ. 7 días
+A08: Hizo algo para conseguir trabajo en los últ. 30 días
+A09: Razón principal por la que no buscó trabajo
+A09E: Especifique A09
+A10: Qué hizo para conseguir trabajo últ. 7días
+A11A: Años está sin trabajo y busca activamente
+A11M: Meses está sin trabajo y busca activamente
+A11S: Semanas está sin trabajo y busca activamente
+A12: ¿Ha trabajado anteriormente?
+A13REC: Última Ocupación (Recodificada)
+A14REC: Rama de Actividad de la última Ocupación (Recodificada)
+A15: Categoría que tenía
+A16: Cantidad de personas que trabajaban
+A17A: Años está sin trabajo
+A17M: Meses está sin trabajo
+A17S: Semanas está sin trabajo
+A18: Razón por la que dejó su última ocupación
+B01REC: Ocupación Principal (Recodificada)
+B02REC: Rama de Actividad en Ocupación Principal (Recodificada)
+B03LU: Horas y Minutos lunes
+B03MA: Horas y Minutos martes
+B03MI: Horas y Minutos miércoles
+B03JU: Horas y Minutos jueves
+B03VI: Horas y Minutos viernes
+B03SA: Horas y Minutos sábado
+B03DO: Horas y Minutos domingo
+B04: ¿Es la cantidad de horas que habitualmene trabaja...?
+B05: Razón por la que no trabajó el N° habitual de horas
+B06: Hs. trabaja habitualmente en esta Ocupación
+B07A: Años de su vida ha trabajado en esta ocupación
+B07M: Meses de su vida ha trabajado en esta ocupación
+B07S: Semanas de su vida ha trabajado en esta ocupación
+B08: Cantidad de personas que trabajan
+B09A: Años de su vida trabaja en el establecimiento
+B09M: Meses de su vida trabaja en el establecimiento
+B09S: Semanas de su vida trabaja en el establecimiento
+B10: Aporta a una caja de jubilación
+B11: ¿A cuál caja aporta?
+B12: Categoría en Ocupación Principal
+B13: Dispone de vacaciones anuales
+B14: ¿Dispone semanalmente de días/s de descanso?
+B15: Ud. forma parte de algún sindicato o asociación de empleados
+B16G: Gs. último pago Neto o Líquido Ocupación Principal
+B16U: Unidad de tiempo
+B16D: Nº de días
+B16T: Gs. total mensual Ocupación Principal
+B17: Recibió sueldo o salario adicional
+B18AG: Gs. monto adicional: horas extras,comisión,etc.
+B18AU: Unidad de tiempo
+B18BG: Monto adicional: Aguinaldo
+B18BU: Aguinaldo, unidad de tiempo
+B19: Recibió comidas/bebidas gratis
+B20G: Gs. estima el valor de comida/bebida
+B20U: Unidad de tiempo
+B20D: N° de días
+B20T: Gs. mensual por comida/bebida
+B21: Ocupa o alquila casa, pieza o dpto.
+B22: Gs. paga alquiler por mes
+B23: Gs. estima pagaría por mes si alquilara de otro
+B24: Recibe al año uniforme/ropa gratis
+B25: Gs. estima valor anual de uniforme/ropa
+B26: Bajo qué tipo de contrato trabaja
+B271: ¿Quién/es conduce/n o maneja/n el establecimiento o negocio (1)?
+B272: ¿Quién/es conduce/n o maneja/n el establecimiento o negocio (2)?
+B28: ¿Tiene RUC el establecimiento o negocio?
+B29: ¿Cuál es la condición jurídica del establecimiento?
+B30: El establecimiento donde trabaja ¿emite factura legal?
+B31: ¿Tenía otro trabajo en los últimos 7 días?
+C01REC: Ocupación Secundaria (Recodificada)
+C02REC: Rama de Actividad en Ocupación Secundaria (Recodificada)
+C03: Hs. trabajó efectivamente en Ocupación Secundaria
+C04: Es habitual estas horas de trabajo
+C05: Hs. que habitualmente trabaja en Ocupación Secundaria
+C06: Cantidad de personas trabajan en el establecimiento
+C07: Aporta a una caja de jubilación por este trabajo
+C08: ¿A cuál caja aporta?
+C09: Categoría que tiene en Ocupación Secundaria
+C101: ¿Quién/es conduce/en o maneja/an el establecimiento o negocio (1)?
+C102: ¿Quién/es conduce/en o maneja/an el establecimiento o negocio (2)?
+C11G: Gs. pago Neto o Líquido Ocupación Secundaria
+C11U: Unidad de tiempo
+C11D: Nº de días
+C11T: Gs. total mensual Ocupación Secundaria
+C12: Recibió sueldos o salarios adicionales
+C13AG: Monto adicional: horas extras, comisión
+C13AU: Unidad de tiempo
+C13BG: Aguinaldo
+C13BU: Unidad de tiempo
+C14: ¿Bajo qué tipo de contrato trabaja?
+C14A: ¿Tiene RUC el establecimiento o negocio?
+C14B: ¿Cuál es la condición jurídica del establecimiento?
+C14C: El establecimiento donde trabaja ¿emite factura legal?
+C15: Cuántas otras ocupaciones tuvo o tiene en últimos 7 días?
+C16REC: Otra Ocupación (Terciaria Recodificada)
+C17REC: Rama de Actividad en Otra Ocupación (Terciaria Recodificada)
+C18: Hs. que efectivamente trabajó en Ocupación (Otras)
+C18A: La cantidad de horas que trabajó es habitual
+C18B: Cuántas horas trabaja habitualmente en esta otra ocupación
+C19: Categoría que tiene en Ocupación (Otras)
+D01: Estuvo disponible para trabajar más hs. en últimos 7 días
+D02: Hs. tuvo disponible para trabajar
+D03: Desea mejorar ocupación, cambiar o adicionar otra ocupación
+D04: Buscó algún otro trabajo en último 7 días
+D05: Razón por qué desea mejorar, cambiar o adicionar empleo actual
+CATE_PEA: Categoría ocup. princ. últ. 7 días (Ocup. y Desoc. 2a. y más veces) recodificada
+TAMA_PEA: Tamaño empresa ocup. princ. últ. 7 días (Ocup. y Desoc. 2a. y más veces)
+OCUP_PEA: Ocupación Principal últ. 7 días (Ocup. y Desoc. 2a. y más veces Recodificada)
+RAMA_PEA: Rama de Actividad ocup. principal últ. 7 días (Ocup. y Desoc. 2a. y más veces Recodificada)
+HORAB: Horas habituales ocupación principal últimos 7 días
+HORABC: Horas habituales ocupación principal más secundaria últimos 7 días
+HORABCO: Horas habituales trabajadas en B, C y Otra actividad
+PEAD: Actividad Económica Desagregada (Horas Habituales B+C+O)
+PEAD_1: Actividad Económica Desagregada (Horas Habituales B y A04A = 1)
+PEAA: Actividad Económica Agrupada
+Factor: Factor de expansión proyección revisión 2025
+Añoest: Años de estudio
+Informalidad: Ocupados no agropecuarios
+E01AIMDE: Ing por actividad principal corregido
+E01BIMDE: Ing por actividad secundaria corregido
+E01CIMDE: Ing por otras actividades corregido
+E01DDE: Ing por alquileres o rentas netas
+E01EDE: Ing por intereses o dividendos
+E01FDE: Ing por ayuda familiar del país
+E01GDE: Ing por divorcio / Asistencia alimentaria
+E01HDE: Ing por jubilación
+E01IDE: Ing del Estado Monetario Tekopora
+E01JDE: Ing por pensión
+E01KDE: Ing del Estado Monetario Adulto Mayor
+E01LDE: Ing por víveres de alguna institución pública
+E01MDE: Otros ingresos
+E01KJDE: Otros ingresos agro asignados al jefe
+
+--- VALUE LABELS (first 5 variables with value labels) ---
+TRIMESTRE: {1.0: 'Primer Trimestre - Año 2022', 2.0: 'Segundo Trimestre - Año 2022', 3.0: 'Tercer Trimestre - Año 2022', 4.0: 'Cuarto Trimestre - Año 2022', 5.0: 'Primer Trimestre - Año 2023', 6.0: 'Segundo Trimestre - Año 2023', 7.0: 'Tercer Trimestre - Año 2023', 8.0: 'Cuarto Trimestre - Año 2023', 9.0: 'Primer Trimestre - Año 2024', 10.0: 'Segundo Trimestre - Año 2024', 11.0: 'Tercer Trimestre - Año 2024', 12.0: 'Cuarto Trimestre - Año 2024', 13.0: 'Primer Trimestre - Año 2025', 14.0: 'Segundo Trimestre - Año 2025', 15.0: 'Tercer Trimestre - Año 2025', 16.0: 'Cuarto Trimestre - Año 2025', 17.0: 'Primer Trimestre - Año 2026', 18.0: 'Segundo Trimestre - Año 2026', 19.0: 'Tercer Trimestre - Año 2026', 20.0: 'Cuarto Trimestre - Año 2026'}
+ANIO: {2022.0: 'Año 2022', 2023.0: 'Año 2023', 2024.0: 'Año 2024', 2025.0: 'Año 2025', 2026.0: 'Año 2026'}
+AREA: {1.0: 'Urbana', 6.0: 'Rural'}
+ESTGEO: {1.0: 'Asunción', 11.0: 'Concepción urbano', 16.0: 'Concepción rural', 21.0: 'San Pedro urbano', 26.0: 'San Pedro rural', 31.0: 'Cordillera urbano', 36.0: 'Cordillera rural', 41.0: 'Guairá urbano', 46.0: 'Guairá rural', 51.0: 'Caaguazú urbano', 56.0: 'Caaguazú rural', 61.0: 'Caazapá urbano', 66.0: 'Caazapá rural', 71.0: 'Itapúa urbano', 76.0: 'Itapúa rural', 81.0: 'Misiones urbano', 86.0: 'Misiones rural', 91.0: 'Paraguarí urbano', 96.0: 'Paraguarí rural', 101.0: 'Alto Paraná urbano', 106.0: 'Alto Paraná rural', 111.0: 'Central urbano', 116.0: 'Central rural', 121.0: 'Ñeembucú urbano', 126.0: 'Ñeembucú rural', 131.0: 'Amambay urbano', 136.0: 'Amambay rural', 141.0: 'Canindeyú urbano', 146.0: 'Canindeyú rural', 151.0: 'Pdte Hayes urbano', 156.0: 'Pdte Hayes rural'}
+P02: {999.0: 'NR'}
