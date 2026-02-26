@@ -330,7 +330,7 @@ function resetFilters() {
 function updateDashboard() {
     const rows = dimDpto.top(Infinity);
 
-    let totalPET = 0, totalOcu = 0, totalDes = 0, totalIPS = 0, totalJub = 0, totalAnios = 0;
+    let totalPET = 0, totalOcu = 0, totalDes = 0, totalSub = 0, totalIna = 0, totalIPS = 0, totalJub = 0, totalAnios = 0;
     const mapEdadH = {}, mapEdadM = {}, mapDeptoPET = {}, mapDeptoPEA = {};
     const mapCateOcu = {}, mapCateIPS = {}, mapCateJub = {};
     const mapTrimLab = {}, mapTrimSalud = {}, mapTrimSML = {};
@@ -338,11 +338,12 @@ function updateDashboard() {
 
     rows.forEach(d => {
         const pet = +(d.personas_pet || 0), ocu = +(d.ocupados || 0), des = +(d.desocupados || 0);
+        const sub = +(d.subocupados || 0), ina = +(d.inactivos || 0);
         const ips = +(d.aporta_ips || 0), jub = +(d.aporta_jub || 0), anios = +(d.anios_estudio_pond || 0);
         const cate = d.categocupa, dpto = d.departamento, sexo = d.sexo;
         const edad = d.tramo_edad, trim = d.trimestre_desc;
 
-        totalPET += pet; totalOcu += ocu; totalDes += des;
+        totalPET += pet; totalOcu += ocu; totalDes += des; totalSub += sub; totalIna += ina;
         totalIPS += ips; totalJub += jub; totalAnios += anios;
         if (trim) trimSet.add(trim);
 
@@ -361,9 +362,10 @@ function updateDashboard() {
             mapCateJub[cate] = (mapCateJub[cate] || 0) + jub;
         }
         if (trim && trim !== 'NR') {
-            if (!mapTrimLab[trim]) mapTrimLab[trim] = { pet: 0, ocu: 0, des: 0 };
+            if (!mapTrimLab[trim]) mapTrimLab[trim] = { pet: 0, ocu: 0, des: 0, sub: 0, ina: 0 };
             if (!mapTrimSalud[trim]) mapTrimSalud[trim] = { ocu: 0, ips: 0, jub: 0 };
             mapTrimLab[trim].pet += pet; mapTrimLab[trim].ocu += ocu; mapTrimLab[trim].des += des;
+            mapTrimLab[trim].sub += sub; mapTrimLab[trim].ina += ina;
             mapTrimSalud[trim].ocu += ocu; mapTrimSalud[trim].ips += ips; mapTrimSalud[trim].jub += jub;
             if (cate === 'Obrero privado' && d.sml_cat && d.sml_cat !== 'NR') {
                 if (!mapTrimSML[trim]) mapTrimSML[trim] = { 'Menos de 1 SML': 0, '1 SML': 0, 'Más de 1 SML': 0 };
@@ -381,6 +383,10 @@ function updateDashboard() {
     setText('kpi-tft', totalPET > 0 ? pct(PEA / totalPET) : '—');
     setText('kpi-ips', totalOcu > 0 ? pct(totalIPS / totalOcu) : '—');
     setText('kpi-educ', totalPET > 0 ? (totalAnios / totalPET).toFixed(1) + ' años' : '—');
+    // INE additional indicators
+    setText('kpi-ts', PEA > 0 ? pct(totalSub / PEA) : '—');
+    setText('kpi-tcsd', PEA > 0 ? pct((totalSub + totalDes) / PEA) : '—');
+    setText('kpi-ti', totalPET > 0 ? pct(totalIna / totalPET) : '—');
 
     // Build status description
     const selAnios = getGroupSelection('f-anio');
@@ -484,8 +490,10 @@ function buildHistLab(mapTrim) {
     const tft = tr.map(t => mapTrim[t].pet > 0 ? ((mapTrim[t].ocu + mapTrim[t].des) / mapTrim[t].pet * 100) : null);
     const to = tr.map(t => mapTrim[t].pet > 0 ? (mapTrim[t].ocu / mapTrim[t].pet * 100) : null);
     const td = tr.map(t => { const p = mapTrim[t].ocu + mapTrim[t].des; return p > 0 ? (mapTrim[t].des / p * 100) : null; });
+    const ts = tr.map(t => { const p = mapTrim[t].ocu + mapTrim[t].des; return p > 0 ? (mapTrim[t].sub / p * 100) : null; });
+    const ti = tr.map(t => mapTrim[t].pet > 0 ? (mapTrim[t].ina / mapTrim[t].pet * 100) : null);
     const mk = (y, n, c) => ({ x: tr, y, name: n, type: 'scatter', mode: 'lines+markers', line: { color: c, width: 2.5, shape: 'spline' }, marker: { size: 5, color: c }, hovertemplate: `<b>${n}</b>: %{y:.1f}%<extra></extra>`, connectgaps: false });
-    Plotly.react('ch-hist-lab', [mk(tft, 'TFT (%)', C.blue), mk(to, 'Tasa Ocupación (%)', C.green), mk(td, 'Tasa Desocupación (%)', C.red)],
+    Plotly.react('ch-hist-lab', [mk(tft, 'TFT (%)', C.blue), mk(to, 'Tasa Ocupación (%)', C.green), mk(td, 'Tasa Desocupación (%)', C.red), mk(ts, 'Tasa Subocupación (%)', C.amber), mk(ti, 'Tasa Inactividad (%)', C.purple)],
         { ...B, hovermode: 'x unified', xaxis: { title: 'Trimestre', gridcolor: B.gridColor, tickangle: -40, automargin: true }, yaxis: { title: '%', gridcolor: B.gridColor }, margin: { l: 52, r: 16, t: 10, b: 90 } }, PLY_CFG);
 }
 function buildHistSalud(mapTrim) {

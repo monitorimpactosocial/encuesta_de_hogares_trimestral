@@ -135,6 +135,15 @@ for sav_file in archivos_sav:
         df['desocupado'] = (~df['ocupado']) & (df['A08'] == 1)
         df['inactivo'] = ~(df['ocupado'] | df['desocupado'])
         
+        # Subocupación por insuficiencia de tiempo (INE: <30 hrs/sem + desea más + disponible)
+        horas_cols = ['B03LU','B03MA','B03MI','B03JU','B03VI','B03SA','B03DO']
+        horas_available = all(c in df.columns for c in horas_cols)
+        if horas_available and 'B15' in df.columns and 'B17' in df.columns:
+            df['horas_sem'] = df[horas_cols].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+            df['subocupado'] = df['ocupado'] & (df['horas_sem'] < 30) & (df['B15'] == 1) & (df['B17'] == 1)
+        else:
+            df['subocupado'] = False
+        
         if "CATE_PEA" in df.columns:
             df['categocupa'] = df['CATE_PEA'].map(map_categocupa).fillna("NR")
         else:
@@ -190,6 +199,7 @@ for sav_file in archivos_sav:
             ocupados=('PESO', lambda x: x[df.loc[x.index, 'ocupado']].sum()),
             desocupados=('PESO', lambda x: x[df.loc[x.index, 'desocupado']].sum()),
             inactivos=('PESO', lambda x: x[df.loc[x.index, 'inactivo']].sum()),
+            subocupados=('PESO', lambda x: x[df.loc[x.index, 'subocupado']].sum()),
             aporta_jub=('aporta_jubilacion', 'sum'),
             aporta_ips=('aporta_ips', 'sum'),
             anios_estudio_pond=('anios_estudio_total', 'sum') # To get average: divide by personas_pet
