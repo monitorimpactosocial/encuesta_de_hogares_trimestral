@@ -271,6 +271,38 @@ body {
     font-weight: 600;
 }
 
+/* Filter hints */
+.filter-hint {
+    font-size: .6rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    padding: 3px 0;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Department grid: 2 columns for compact display */
+.dpto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+.dpto-grid .t-chip {
+    text-align: center;
+    font-size: .62rem;
+    padding: 4px 4px;
+    border-radius: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dpto-grid .t-chip[data-val="ALL"] {
+    grid-column: 1 / -1;
+    border-radius: 999px;
+}
+
 .sidebar-footer {
     margin-top: auto;
     padding: 14px 16px;

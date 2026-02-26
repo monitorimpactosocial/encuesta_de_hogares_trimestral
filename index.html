@@ -37,16 +37,19 @@
         <div class="sidebar-section">
             <div class="sidebar-section-label">Período</div>
             <div class="filter-group">
-                <label class="filter-label" for="f-anio">Año</label>
-                <select id="f-anio" class="filter-select">
-                    <option value="ALL">Todos los años</option>
-                </select>
+                <label class="filter-label">Año</label>
+                <div class="chip-group multi-select" id="f-anio">
+                    <button class="t-chip active" data-val="ALL">Todos</button>
+                    <!-- populated by JS, descending order -->
+                </div>
+                <div class="filter-hint">💡 Ctrl+clic para seleccionar varios años</div>
             </div>
             <div class="filter-group">
-                <label class="filter-label" for="f-trimestre">Trimestre</label>
-                <select id="f-trimestre" class="filter-select">
-                    <option value="ALL">Todos</option>
-                </select>
+                <label class="filter-label">Trimestre</label>
+                <div class="chip-group multi-select" id="f-trimestre">
+                    <button class="t-chip active" data-val="ALL">Todos</button>
+                    <!-- populated by JS -->
+                </div>
             </div>
         </div>
 
@@ -62,7 +65,7 @@
             </div>
             <div class="filter-group">
                 <label class="filter-label">Tramo de Edad</label>
-                <div class="chip-group" id="f-edad">
+                <div class="chip-group multi-select" id="f-edad">
                     <button class="t-chip active" data-val="ALL">Todos</button>
                     <button class="t-chip" data-val="15-24">15-24</button>
                     <button class="t-chip" data-val="25-34">25-34</button>
@@ -71,22 +74,27 @@
                     <button class="t-chip" data-val="55-64">55-64</button>
                     <button class="t-chip" data-val="65+">65+</button>
                 </div>
+                <div class="filter-hint">💡 Ctrl+clic para combinar tramos</div>
             </div>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-label">Territorio y Trabajo</div>
             <div class="filter-group">
-                <label class="filter-label" for="f-dpto">Departamento</label>
-                <select id="f-dpto" class="filter-select">
-                    <option value="ALL">Todos</option>
-                </select>
+                <label class="filter-label">Departamento</label>
+                <div class="chip-group multi-select dpto-grid" id="f-dpto">
+                    <button class="t-chip active" data-val="ALL">Todos</button>
+                    <!-- populated by JS -->
+                </div>
+                <div class="filter-hint">💡 Ctrl+clic para seleccionar múltiples departamentos</div>
             </div>
             <div class="filter-group">
-                <label class="filter-label" for="f-cate">Categoría Ocupacional</label>
-                <select id="f-cate" class="filter-select">
-                    <option value="ALL">Todas</option>
-                </select>
+                <label class="filter-label">Categoría Ocupacional</label>
+                <div class="chip-group multi-select" id="f-cate">
+                    <button class="t-chip active" data-val="ALL">Todas</button>
+                    <!-- populated by JS -->
+                </div>
+                <div class="filter-hint">💡 Ctrl+clic para combinar categorías</div>
             </div>
         </div>
 
