@@ -1,627 +1,547 @@
-let rawData = [];
-let geoJsonData = null;
-let maps = {};
-let geojsonLayers = {};
-let cf, dimTrimestre, dimSexo, dimEdad, dimDpto, dimCate;
-let activeTab = 'tab-demografia';
-let charts = {};
+/* ============================================================
+   TABLERO DE INDICADORES DEPARTAMENTALES
+   app.js — Lógica principal
+============================================================ */
 
-const formatNumber = (num) => new Intl.NumberFormat('es-PY').format(num);
+"use strict";
 
-// Premium dark Chart.js defaults
-Chart.register(ChartDataLabels);
-Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.color = '#94a3b8';
-Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(5,8,15,0.95)';
-Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
-Chart.defaults.plugins.tooltip.borderWidth = 1;
-Chart.defaults.plugins.tooltip.padding = 12;
-Chart.defaults.plugins.tooltip.titleColor = '#f0f6ff';
-Chart.defaults.plugins.tooltip.bodyColor = '#94a3b8';
-Chart.defaults.plugins.tooltip.cornerRadius = 8;
+// ─── GLOBAL STATE ────────────────────────────────────────────
+let rawData = [];   // All rows from CSV
+let years = [];   // Sorted years array
+let activeYear = null; // Currently selected year
 
-const colors = {
-    emerald: '#34d399', emeraldDark: '#059669',
-    blue: '#60a5fa', blueDark: '#2563eb',
-    purple: '#a78bfa', teal: '#2dd4bf',
-    orange: '#fb923c', red: '#f87171',
-    yellow: '#fbbf24', pink: '#f472b6',
-    cyan: '#67e8f9', gray: '#1e293b'
+// Chart color palettes (accessible / colorblind-safe)
+const PALETTE = {
+    blue: '#2563EB',
+    green: '#16A34A',
+    teal: '#0D9488',
+    amber: '#D97706',
+    red: '#DC2626',
+    purple: '#7C3AED',
+    slate: '#475569',
+    orange: '#EA580C',
+    pink: '#DB2777',
 };
-const palette = [
-    colors.emerald, colors.blue, colors.purple, colors.orange,
-    colors.pink, colors.teal, colors.yellow, colors.cyan, colors.red
-];
 
+// Colors for multi-line historical series
+const LINE_COLORS = ['#2563EB', '#16A34A', '#D97706', '#DC2626', '#7C3AED', '#0D9488', '#EA580C'];
+
+// Plotly base layout shared by all charts
+const BASE_LAYOUT = {
+    paper_bgcolor: 'white',
+    plot_bgcolor: 'white',
+    font: { family: "'Inter', system-ui, sans-serif", size: 12, color: '#475569' },
+    margin: { l: 50, r: 20, t: 10, b: 50 },
+    showlegend: true,
+    legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
+};
+
+const PLOTLY_CONFIG = {
+    responsive: true,
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+    toImageButtonOptions: { format: 'png', scale: 2 }
+};
+
+// ─── HISTORICAL SERIES CONFIG ────────────────────────────────
+const SERIES_CONFIG = {
+    demo: [
+        { col: 'tasa_dependencia_total', label: 'Dep. Total (%)', unit: '%' },
+        { col: 'tasa_dependencia_adultos', label: 'Dep. Adultos Mayores (%)', unit: '%' },
+        { col: 'tasa_dependencia_jovenes', label: 'Dep. Jóvenes (%)', unit: '%' },
+        { col: 'indice_envejecimiento', label: 'Índice Envejecimiento (%)', unit: '%' },
+        { col: 'poblacion_total', label: 'Población Total', unit: 'hab.' },
+    ],
+    lab: [
+        { col: 'tgp', label: 'TGP (%)', unit: '%' },
+        { col: 'tasa_ocupacion', label: 'Tasa Ocupación (%)', unit: '%' },
+        { col: 'tasa_desempleo', label: 'Tasa Desempleo (%)', unit: '%' },
+        { col: 'informalidad', label: 'Informalidad (%)', unit: '%' },
+        { col: 'subempleo', label: 'Subempleo (%)', unit: '%' },
+    ],
+    social: [
+        { col: 'cobertura_salud_contributivo', label: 'Salud Contributivo (%)', unit: '%' },
+        { col: 'cobertura_salud_subsidiado', label: 'Salud Subsidiado (%)', unit: '%' },
+        { col: 'mortalidad_infantil', label: 'Mortalidad Infantil', unit: 'x1000 NV' },
+        { col: 'esperanza_vida', label: 'Esperanza de Vida', unit: 'años' },
+        { col: 'tasa_analfabetismo', label: 'Analfabetismo (%)', unit: '%' },
+        { col: 'cobertura_neta_secundaria', label: 'Cob. Neta Secundaria (%)', unit: '%' },
+    ]
+};
+
+// Track which series are active in each historical tab
+const activeToggles = { demo: new Set(), lab: new Set(), social: new Set() };
+
+// ─── INIT ────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initSidebarToggle();
-    initTabs();
-    fetchDatos();
+    initMainTabs();
+    initSubTabs();
+    loadCSV();
+    loadMetodologia();
 });
 
-function initSidebarToggle() {
-    const btn = document.getElementById('sidebar-toggle');
-    if (btn) {
+// ─── TAB NAVIGATION ──────────────────────────────────────────
+function initMainTabs() {
+    document.querySelectorAll('.main-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.body.classList.toggle('sidebar-collapsed');
-        });
-    }
-}
-
-function initTabs() {
-    const tabBtns = document.querySelectorAll('.tab-nav-btn');
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = e.currentTarget;
-            document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-
-            target.classList.add('active');
-            activeTab = target.getAttribute('data-target');
-            document.getElementById(activeTab).classList.add('active');
-
-            // Update topbar title
-            const topTitle = document.getElementById('tab-current-name');
-            if (topTitle) topTitle.textContent = target.textContent.trim();
-
-            // Re-render charts + invalidate maps
-            Object.values(charts).forEach(c => c.update());
-            if (maps.demografia) setTimeout(() => maps.demografia.invalidateSize(), 200);
-            if (maps.laboral) setTimeout(() => maps.laboral.invalidateSize(), 200);
+            document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            // Trigger Plotly resize for charts in the newly visible tab
+            window.dispatchEvent(new Event('resize'));
         });
     });
 }
 
-async function fetchDatos() {
-    try {
-        const [resDatos, resGeo] = await Promise.all([
-            fetch('datos_consolidados.json'),
-            fetch('departamentos.geojson')
-        ]);
-        rawData = await resDatos.json();
-        geoJsonData = await resGeo.json();
-
-        if (rawData.length > 0) {
-            initCrossfilter();
-            initUI();
-            updateDashboard();
-        }
-    } catch (e) {
-        console.error("Error al cargar JSON:", e);
-        alert("Asegúrate de tener el servidor web levantado y de haber procesado los datos y mapas.");
-    }
-}
-
-function initCrossfilter() {
-    cf = crossfilter(rawData);
-    dimTrimestre = cf.dimension(d => d.trimestre_desc);
-    dimSexo = cf.dimension(d => d.sexo);
-    dimEdad = cf.dimension(d => d.tramo_edad);
-    dimDpto = cf.dimension(d => d.departamento);
-    dimCate = cf.dimension(d => d.categocupa);
-}
-
-function initUI() {
-    const trimestres = getUniqueDimensionValues(dimTrimestre).sort();
-    const selectT = document.getElementById('trimestre-select');
-    trimestres.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t; opt.textContent = t;
-        selectT.appendChild(opt);
-    });
-
-    const dptos = getUniqueDimensionValues(dimDpto).sort();
-    const selectD = document.getElementById('dpto-select');
-    selectD.innerHTML = '<option value="ALL">Todo el País</option>';
-    dptos.forEach(d => {
-        if (d !== 'NR') {
-            const opt = document.createElement('option');
-            opt.value = d; opt.textContent = d;
-            selectD.appendChild(opt);
-        }
-    });
-
-    setupFilterEvents('trimestre-select', dimTrimestre, true);
-    setupFilterEvents('dpto-select', dimDpto, true);
-    setupFilterEvents('cate-select', dimCate, true);
-    setupButtonGroupEvents('filter-sexo', dimSexo);
-    setupButtonGroupEvents('filter-edad', dimEdad);
-    document.getElementById('btn-reset-filters').addEventListener('click', resetFilters);
-
-    initCharts();
-    initMaps();
-}
-
-function getUniqueDimensionValues(dimension) {
-    return dimension.group().all().map(g => g.key);
-}
-
-function setupFilterEvents(elementId, dimension, isSelect) {
-    document.getElementById(elementId).addEventListener('change', (e) => {
-        applyFilter(dimension, e.target.value);
-    });
-}
-
-function setupButtonGroupEvents(containerId, dimension) {
-    const btns = document.getElementById(containerId).querySelectorAll('button');
-    btns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            btns.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            applyFilter(dimension, e.currentTarget.getAttribute('data-val'));
+function initSubTabs() {
+    document.querySelectorAll('.subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const parent = btn.closest('.tab-panel');
+            parent.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+            parent.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.subtab).classList.add('active');
+            window.dispatchEvent(new Event('resize'));
         });
     });
 }
 
-function applyFilter(dimension, value) {
-    if (value === 'ALL') dimension.filterAll();
-    else dimension.filterExact(value);
-    updateDashboard();
-}
-
-function resetFilters() {
-    dimTrimestre.filterAll();
-    dimSexo.filterAll();
-    dimEdad.filterAll();
-    dimDpto.filterAll();
-    dimCate.filterAll();
-
-    document.getElementById('trimestre-select').value = 'ALL';
-    document.getElementById('dpto-select').value = 'ALL';
-    document.getElementById('cate-select').value = 'ALL';
-
-    // Toggle btns in sidebar
-    document.querySelectorAll('.toggle-btn, .age-chip').forEach(b => b.classList.remove('active'));
-    const defaultSexo = document.querySelector('#filter-sexo .toggle-btn[data-val="ALL"]');
-    const defaultEdad = document.querySelector('#filter-edad .age-chip[data-val="ALL"]');
-    if (defaultSexo) defaultSexo.classList.add('active');
-    if (defaultEdad) defaultEdad.classList.add('active');
-
-    updateDashboard();
-}
-
-/* ============================
-    Dashboard Rendering
-============================ */
-
-const darkScale = {
-    grid: { color: 'rgba(255,255,255,0.05)' },
-    ticks: { color: '#64748b' },
-    border: { color: 'rgba(255,255,255,0.05)' }
-};
-
-function initCharts() {
-    // 1. Demografía
-    charts.sexo = createChart('sexoChart', 'doughnut', {
-        cutout: '68%',
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
-            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
-        }
-    });
-    charts.edad = createChart('edadChart', 'bar', {
-        scales: {
-            y: { beginAtZero: true, ...darkScale },
-            x: { ...darkScale }
-        },
-        plugins: { legend: { display: false }, datalabels: { display: false } }
-    });
-    charts.dpto = createChart('dptoChart', 'bar', {
-        indexAxis: 'y',
-        scales: {
-            x: { beginAtZero: true, ...darkScale },
-            y: { ...darkScale, ticks: { color: '#94a3b8', font: { size: 10 } } }
-        },
-        plugins: { legend: { display: false }, datalabels: { display: false } }
-    });
-
-    // 2. Educación
-    charts.eduEdad = createChart('educacionEdadChart', 'bar', {
-        scales: {
-            y: { beginAtZero: true, ...darkScale },
-            x: { ...darkScale }
-        },
-        plugins: { legend: { display: false }, datalabels: { display: false } }
-    });
-
-    // 3. Salud
-    charts.saludCate = new Chart(document.getElementById('saludCateChart').getContext('2d'), {
-        type: 'bar',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, max: 100, ...darkScale },
-                x: { ...darkScale }
-            },
-            plugins: { datalabels: { display: false } }
-        }
-    });
-    charts.saludDonut = createChart('saludDonutChart', 'doughnut', {
-        cutout: '68%',
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
-            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
-        }
-    });
-
-    // 4. Laboral
-    charts.cateOcupa = createChart('cateOcupacionChart', 'bar', {
-        indexAxis: 'y',
-        scales: {
-            x: { beginAtZero: true, ...darkScale },
-            y: { ...darkScale }
-        },
-        plugins: { legend: { display: false }, datalabels: { display: false } }
-    });
-    charts.ocuDesoc = createChart('ocuDesocDonutChart', 'doughnut', {
-        cutout: '68%',
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 16 } },
-            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 12 } }
-        }
-    });
-
-    // 5. Evolución
-    charts.evolLaboral = createEvolLineChart('evolucionLaboralChart');
-    charts.evolSalud = createEvolLineChart('evolucionSaludChart');
-    charts.smlDonut = createChart('smlDonutChart', 'doughnut', {
-        cutout: '68%',
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12 } },
-            datalabels: { formatter: pctFormatter, color: '#fff', font: { weight: 'bold', size: 11 } }
-        }
-    });
-
-    // Stacked Bar SML
-    charts.smlEvol = new Chart(document.getElementById('smlEvolucionChart').getContext('2d'), {
-        type: 'bar',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: {
-                x: { stacked: true, ...darkScale },
-                y: { stacked: true, beginAtZero: true, max: 100, ...darkScale }
-            },
-            plugins: {
-                legend: { labels: { color: '#94a3b8', padding: 12 } },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 10 },
-                    formatter: v => v > 5 ? Math.round(v) + '%' : ''
-                }
+// ─── CSV LOADING ─────────────────────────────────────────────
+function loadCSV() {
+    Papa.parse('data/datos_departamento.csv', {
+        download: true,
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        complete: (result) => {
+            if (!result.data || result.data.length === 0) {
+                showError('No se encontraron datos en el archivo CSV.');
+                return;
             }
+            rawData = result.data;
+            years = [...new Set(rawData.map(r => r.año))].sort((a, b) => a - b);
+            activeYear = years[years.length - 1]; // Default: most recent year
+
+            populateYearSelector();
+            initHistoricalToggles();
+            renderCurrentYear();
+        },
+        error: (err) => showError('Error al cargar datos: ' + err.message)
+    });
+}
+
+function getRowForYear(year) {
+    return rawData.find(r => r.año === year) || null;
+}
+
+// ─── YEAR SELECTOR ───────────────────────────────────────────
+function populateYearSelector() {
+    const sel = document.getElementById('year-select');
+    // newest first for usability
+    [...years].reverse().forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        if (y === activeYear) opt.selected = true;
+        sel.appendChild(opt);
+    });
+    sel.addEventListener('change', () => {
+        activeYear = parseInt(sel.value);
+        document.getElementById('header-year-badge').textContent = `Año ${activeYear}`;
+        document.getElementById('filter-info').textContent =
+            `Mostrando datos del año ${activeYear}. ` +
+            (activeYear === years[years.length - 1] ? '(Más reciente)' : '');
+        renderCurrentYear();
+    });
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────
+function renderCurrentYear() {
+    const row = getRowForYear(activeYear);
+    if (!row) { showError(`Sin datos para el año ${activeYear}.`); return; }
+
+    renderDemografia(row);
+    renderLaboral(row);
+    renderSalud(row);
+    renderEducacion(row);
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────
+const fmt = (n, dec = 1) => n != null ? n.toFixed(dec) + ' %' : 'N/D';
+const fmtN = (n) => n != null ? new Intl.NumberFormat('es-CO').format(Math.round(n)) : 'N/D';
+const fmtPesos = (n) => n != null ? '$ ' + new Intl.NumberFormat('es-CO').format(Math.round(n)) : 'N/D';
+
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+// ─── BLOQUE 1: DEMOGRAFÍA ────────────────────────────────────
+function renderDemografia(row) {
+    setText('kpi-pob-total', fmtN(row.poblacion_total));
+    setText('kpi-dep-total', fmt(row.tasa_dependencia_total));
+    setText('kpi-dep-adultos', fmt(row.tasa_dependencia_adultos));
+    setText('kpi-dep-jovenes', fmt(row.tasa_dependencia_jovenes));
+    setText('kpi-envejecimiento', fmt(row.indice_envejecimiento));
+
+    buildPiramide(row);
+}
+
+function buildPiramide(row) {
+    const grupos = ['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39',
+        '40-44', '45-49', '50-54', '55-59', '60-64', '65+'];
+    const hKeys = ['pob_0_4h', 'pob_5_9h', 'pob_10_14h', 'pob_15_19h', 'pob_20_24h', 'pob_25_29h',
+        'pob_30_34h', 'pob_35_39h', 'pob_40_44h', 'pob_45_49h', 'pob_50_54h', 'pob_55_59h',
+        'pob_60_64h', 'pob_65_mas_h'];
+    const mKeys = ['pob_0_4m', 'pob_5_9m', 'pob_10_14m', 'pob_15_19m', 'pob_20_24m', 'pob_25_29m',
+        'pob_30_34m', 'pob_35_39m', 'pob_40_44m', 'pob_45_49m', 'pob_50_54m', 'pob_55_59m',
+        'pob_60_64m', 'pob_65_mas_m'];
+
+    const hVal = hKeys.map(k => -(row[k] || 0));  // negative = left side
+    const mVal = mKeys.map(k => (row[k] || 0));
+
+    const traces = [
+        {
+            x: hVal, y: grupos, type: 'bar', orientation: 'h',
+            name: 'Hombres',
+            marker: { color: PALETTE.blue },
+            hovertemplate: '%{y}: %{customdata:,.0f} hombres<extra></extra>',
+            customdata: hVal.map(v => Math.abs(v))
+        },
+        {
+            x: mVal, y: grupos, type: 'bar', orientation: 'h',
+            name: 'Mujeres',
+            marker: { color: PALETTE.pink },
+            hovertemplate: '%{y}: %{x:,.0f} mujeres<extra></extra>'
         }
-    });
-}
+    ];
 
-function createChart(id, type, extraOptions = {}) {
-    return new Chart(document.getElementById(id).getContext('2d'), {
-        type: type,
-        data: { labels: [], datasets: [] },
-        options: { responsive: true, maintainAspectRatio: false, ...extraOptions }
-    });
-}
-
-function createEvolLineChart(id) {
-    return createChart(id, 'line', {
-        plugins: {
-            datalabels: { display: false },
-            legend: { labels: { color: '#94a3b8', padding: 12 } }
+    const layout = {
+        ...BASE_LAYOUT,
+        barmode: 'relative',
+        xaxis: {
+            title: 'Personas', tickformat: ',.0f',
+            tickvals: [-20000, -10000, 0, 10000, 20000],
+            ticktext: ['20K', '10K', '0', '10K', '20K'],
+            gridcolor: '#F1F5F9'
         },
-        scales: {
-            y: { beginAtZero: true, suggestedMax: 100, ...darkScale },
-            x: { ...darkScale }
-        },
-        elements: { line: { tension: 0.35, borderWidth: 2 }, point: { radius: 3, hoverRadius: 6 } }
-    });
+        yaxis: { title: '', gridcolor: '#F1F5F9' },
+        margin: { l: 50, r: 20, t: 10, b: 40 },
+        legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
+    };
+
+    Plotly.react('chart-piramide', traces, layout, PLOTLY_CONFIG);
 }
 
-const pctFormatter = (value, ctx) => {
-    let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-    if (sum === 0) return '';
-    return Math.round((value / sum) * 100) + '%';
-};
+// ─── BLOQUE 2: MERCADO LABORAL ───────────────────────────────
+function renderLaboral(row) {
+    setText('kpi-tgp', fmt(row.tgp, 1));
+    setText('kpi-to', fmt(row.tasa_ocupacion, 1));
+    setText('kpi-td', fmt(row.tasa_desempleo, 1));
+    setText('kpi-informal', fmt(row.informalidad, 1));
+    setText('kpi-subempleo', fmt(row.subempleo, 1));
+    setText('kpi-ingreso', fmtPesos(row.ingreso_promedio));
 
-function updateDashboard() {
-    const allFiltered = dimTrimestre.top(Infinity);
+    buildRamas(row);
+}
 
-    let totalPET = 0, totalPEA = 0, totalOcupados = 0, totalDesocupados = 0;
-    let totalAniosPond = 0, totalAportaIPS = 0, totalAportaJub = 0;
-    let obrerosSML = { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 };
+function buildRamas(row) {
+    const ramas = ['Agricultura', 'Comercio', 'Manufactura', 'Construcción', 'Servicios', 'Transporte', 'Otros'];
+    const cols = ['ocup_agricultura', 'ocup_comercio', 'ocup_manufactura', 'ocup_construccion',
+        'ocup_servicios', 'ocup_transporte', 'ocup_otros'];
+    const vals = cols.map(c => row[c] || 0);
 
-    let mapSexo = {}, mapEdadPET = {}, mapDpto = {}, mapDptoPEA = {}, mapEdadAniosPond = {};
-    let mapCateOcupados = {}, mapCateIPS = {}, mapCateJub = {};
+    // Sort descending for readability
+    const combined = ramas.map((r, i) => ({ r, v: vals[i] })).sort((a, b) => a.v - b.v);
 
-    allFiltered.forEach(row => {
-        totalPET += row.personas_pet;
-        totalOcupados += row.ocupados;
-        totalDesocupados += row.desocupados;
-        totalAniosPond += row.anios_estudio_pond;
-        totalAportaIPS += row.aporta_ips;
-        totalAportaJub += row.aporta_jub;
+    const traces = [{
+        x: combined.map(d => d.v),
+        y: combined.map(d => d.r),
+        type: 'bar',
+        orientation: 'h',
+        marker: {
+            color: combined.map(d => d.v),
+            colorscale: [[0, '#EFF6FF'], [1, PALETTE.blue]],
+            showscale: false
+        },
+        hovertemplate: '<b>%{y}</b><br>%{x:.1f}%<extra></extra>',
+        text: combined.map(d => d.v.toFixed(1) + '%'),
+        textposition: 'outside'
+    }];
 
-        if (row.categocupa === 'Obrero privado' && row.sml_cat !== 'NR') {
-            obrerosSML[row.sml_cat] += row.ocupados;
+    const layout = {
+        ...BASE_LAYOUT,
+        showlegend: false,
+        xaxis: { title: '% de los ocupados', range: [0, 35], gridcolor: '#F1F5F9' },
+        yaxis: { title: '', automargin: true }
+    };
+
+    Plotly.react('chart-ramas', traces, layout, PLOTLY_CONFIG);
+}
+
+// ─── BLOQUE 3: SALUD ─────────────────────────────────────────
+function renderSalud(row) {
+    const contr = row.cobertura_salud_contributivo || 0;
+    const subsi = row.cobertura_salud_subsidiado || 0;
+    const excep = row.cobertura_salud_excepcion || 0;
+    const sinAs = row.sin_aseguramiento || 0;
+    const total = (100 - sinAs).toFixed(1);
+
+    setText('kpi-cobertura-salud', total + ' %');
+    setText('kpi-mortalidad', (row.mortalidad_infantil || '—') + (row.mortalidad_infantil ? ' ‰' : ''));
+    setText('kpi-natalidad', fmt(row.tasa_natalidad, 1));
+    setText('kpi-esperanza', (row.esperanza_vida || '—') + (row.esperanza_vida ? ' años' : ''));
+
+    buildAseguramiento(contr, subsi, excep, sinAs);
+}
+
+function buildAseguramiento(contr, subsi, excep, sinAs) {
+    const traces = [{
+        values: [contr, subsi, excep, sinAs],
+        labels: ['Contributivo', 'Subsidiado', 'Excepción', 'Sin asegurar'],
+        type: 'pie',
+        hole: 0.52,
+        marker: {
+            colors: [PALETTE.blue, PALETTE.teal, PALETTE.amber, '#CBD5E1'],
+            line: { color: 'white', width: 2 }
+        },
+        hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<extra></extra>',
+        textinfo: 'label+percent',
+        textposition: 'outside',
+        pull: [0, 0, 0, 0.04]
+    }];
+
+    const layout = {
+        ...BASE_LAYOUT,
+        showlegend: false,
+        margin: { l: 40, r: 40, t: 20, b: 20 }
+    };
+
+    Plotly.react('chart-aseguramiento', traces, layout, PLOTLY_CONFIG);
+}
+
+// ─── BLOQUE 4: EDUCACIÓN ─────────────────────────────────────
+function renderEducacion(row) {
+    setText('kpi-analfabetismo', fmt(row.tasa_analfabetismo, 1));
+    buildEducNivel(row);
+    buildCoberturaEduc(row);
+}
+
+function buildEducNivel(row) {
+    const niveles = ['Sin escolaridad', 'Primaria', 'Secundaria', 'Media', 'Superior'];
+    const cols = ['educ_ninguno', 'educ_primaria', 'educ_secundaria', 'educ_media', 'educ_superior'];
+    const colors = ['#CBD5E1', PALETTE.teal, PALETTE.blue, PALETTE.purple, PALETTE.green];
+
+    const total = cols.reduce((s, c) => s + (row[c] || 0), 0);
+
+    const traces = cols.map((c, i) => ({
+        y: [activeYear.toString()],
+        x: [(row[c] / total * 100)],
+        name: niveles[i],
+        type: 'bar',
+        orientation: 'h',
+        marker: { color: colors[i] },
+        hovertemplate: `<b>${niveles[i]}</b><br>%{x:.1f}%<extra></extra>`,
+        text: [(row[c] / total * 100).toFixed(1) + '%'],
+        textposition: 'inside',
+        insidetextanchor: 'middle',
+        textfont: { color: 'white', size: 11 }
+    }));
+
+    const layout = {
+        ...BASE_LAYOUT,
+        barmode: 'stack',
+        showlegend: true,
+        xaxis: { title: '% de la población de 15+ años', gridcolor: '#F1F5F9' },
+        yaxis: { title: '' },
+        margin: { l: 20, r: 20, t: 10, b: 40 }
+    };
+
+    Plotly.react('chart-educacion-nivel', traces, layout, PLOTLY_CONFIG);
+}
+
+function buildCoberturaEduc(row) {
+    const niveles = ['Primaria', 'Secundaria', 'Media'];
+    const netaCols = ['cobertura_neta_primaria', 'cobertura_neta_secundaria', 'cobertura_neta_media'];
+    const brutaCols = ['cobertura_bruta_primaria', 'cobertura_bruta_secundaria', 'cobertura_bruta_media'];
+
+    const traces = [
+        {
+            x: niveles,
+            y: netaCols.map(c => row[c] || 0),
+            name: 'Cobertura Neta',
+            type: 'bar',
+            marker: { color: PALETTE.blue },
+            hovertemplate: '<b>%{x}</b> Neta<br>%{y:.1f}%<extra></extra>',
+            text: netaCols.map(c => (row[c] || 0).toFixed(1) + '%'),
+            textposition: 'outside'
+        },
+        {
+            x: niveles,
+            y: brutaCols.map(c => row[c] || 0),
+            name: 'Cobertura Bruta',
+            type: 'bar',
+            marker: { color: PALETTE.teal },
+            hovertemplate: '<b>%{x}</b> Bruta<br>%{y:.1f}%<extra></extra>',
+            text: brutaCols.map(c => (row[c] || 0).toFixed(1) + '%'),
+            textposition: 'outside'
         }
+    ];
 
-        mapSexo[row.sexo] = (mapSexo[row.sexo] || 0) + row.personas_pet;
-        mapEdadPET[row.tramo_edad] = (mapEdadPET[row.tramo_edad] || 0) + row.personas_pet;
-        mapDpto[row.departamento] = (mapDpto[row.departamento] || 0) + row.personas_pet;
-        mapDptoPEA[row.departamento] = (mapDptoPEA[row.departamento] || 0) + (row.ocupados + row.desocupados);
-        mapEdadAniosPond[row.tramo_edad] = (mapEdadAniosPond[row.tramo_edad] || 0) + row.anios_estudio_pond;
+    const layout = {
+        ...BASE_LAYOUT,
+        barmode: 'group',
+        xaxis: { title: '' },
+        yaxis: { title: '% de cobertura', gridcolor: '#F1F5F9', range: [0, 115] }
+    };
 
-        if (row.categocupa !== 'NR') {
-            mapCateOcupados[row.categocupa] = (mapCateOcupados[row.categocupa] || 0) + row.ocupados;
-            mapCateIPS[row.categocupa] = (mapCateIPS[row.categocupa] || 0) + row.aporta_ips;
-            mapCateJub[row.categocupa] = (mapCateJub[row.categocupa] || 0) + row.aporta_jub;
-        }
+    Plotly.react('chart-cobertura-educ', traces, layout, PLOTLY_CONFIG);
+}
+
+// ─── EVOLUCIÓN HISTÓRICA ─────────────────────────────────────
+function initHistoricalToggles() {
+    Object.entries(SERIES_CONFIG).forEach(([group, series]) => {
+        const container = document.getElementById(`toggles-${group}`);
+        series.forEach((s, i) => {
+            // Default: first 3 series on for each group
+            if (i < 3) activeToggles[group].add(s.col);
+
+            const btn = document.createElement('button');
+            btn.className = 'ind-toggle' + (i < 3 ? ' on' : '');
+            btn.dataset.col = s.col;
+            btn.dataset.group = group;
+            const dot = document.createElement('span');
+            dot.className = 'toggle-dot';
+            dot.style.color = LINE_COLORS[i % LINE_COLORS.length];
+            btn.appendChild(dot);
+            btn.appendChild(document.createTextNode(s.label));
+
+            btn.addEventListener('click', () => {
+                if (activeToggles[group].has(s.col)) {
+                    activeToggles[group].delete(s.col);
+                    btn.classList.remove('on');
+                } else {
+                    activeToggles[group].add(s.col);
+                    btn.classList.add('on');
+                }
+                buildHistoricalChart(group);
+            });
+
+            container.appendChild(btn);
+        });
+
+        // Initial chart
+        buildHistoricalChart(group);
     });
-
-    totalPEA = totalOcupados + totalDesocupados;
-
-    // --- KPIs Update ---
-    document.getElementById('kpi-pob-total').innerText = formatNumber(Math.round(totalPET));
-
-    let topEdad = Object.keys(mapEdadPET).length ? Object.keys(mapEdadPET).reduce((a, b) => mapEdadPET[a] > mapEdadPET[b] ? a : b) : "--";
-    document.getElementById('kpi-edad-mayor').innerText = topEdad;
-
-    let topDpto = Object.keys(mapDpto).length ? Object.keys(mapDpto).reduce((a, b) => mapDpto[a] > mapDpto[b] ? a : b) : "--";
-    document.getElementById('kpi-dpto-mayor').innerText = topDpto;
-
-    document.getElementById('kpi-anios-estudio').innerText = totalPET > 0 ? (totalAniosPond / totalPET).toFixed(1) : "0";
-    document.getElementById('kpi-ips').innerText = totalOcupados > 0 ? ((totalAportaIPS / totalOcupados) * 100).toFixed(1) + '%' : "0%";
-    document.getElementById('kpi-jubilacion').innerText = totalOcupados > 0 ? ((totalAportaJub / totalOcupados) * 100).toFixed(1) + '%' : "0%";
-
-    document.getElementById('kpi-tft').innerText = totalPET > 0 ? ((totalPEA / totalPET) * 100).toFixed(1) + '%' : "0%";
-    document.getElementById('poblacion-ref-lab').innerText = `Ref: ${formatNumber(Math.round(totalPET))} (PET)`;
-    document.getElementById('kpi-ocupacion').innerText = totalPEA > 0 ? ((totalOcupados / totalPEA) * 100).toFixed(1) + '%' : "0%";
-    document.getElementById('kpi-desocupacion').innerText = totalPEA > 0 ? ((totalDesocupados / totalPEA) * 100).toFixed(1) + '%' : "0%";
-
-    const sumSML = obrerosSML["Menos de 1 SML"] + obrerosSML["1 SML"] + obrerosSML["Más de 1 SML"];
-    document.getElementById('kpi-supera-sml').innerText = sumSML > 0 ? ((obrerosSML["Más de 1 SML"] / sumSML) * 100).toFixed(1) + '%' : 'N/A';
-
-    // New: top occupational category for laboral KPI card
-    const cateEl = document.getElementById('kpi-top-cate');
-    if (cateEl) {
-        const topCate = Object.keys(mapCateOcupados).filter(c => c !== 'NR').length
-            ? Object.keys(mapCateOcupados).filter(c => c !== 'NR').reduce((a, b) => mapCateOcupados[a] > mapCateOcupados[b] ? a : b)
-            : "--";
-        cateEl.innerText = topCate;
-    }
-
-    // --- Tab 1 Demographic Charts ---
-    updateChartData(charts.sexo, Object.keys(mapSexo), [{
-        data: Object.values(mapSexo),
-        backgroundColor: [colors.blue, colors.pink, colors.yellow],
-        borderWidth: 0, hoverOffset: 8
-    }]);
-
-    const edadSorted = Object.keys(mapEdadPET).sort();
-    updateChartData(charts.edad, edadSorted, [{
-        label: 'Población (PET)',
-        data: edadSorted.map(k => mapEdadPET[k]),
-        backgroundColor: 'rgba(167,139,250,0.7)',
-        borderColor: colors.purple,
-        borderWidth: 1,
-        borderRadius: 4
-    }]);
-
-    const dptoSorted = Object.entries(mapDpto).filter(([k]) => k !== 'NR').sort((a, b) => b[1] - a[1]).slice(0, 10);
-    updateChartData(charts.dpto, dptoSorted.map(d => d[0]), [{
-        label: 'Población (PET)',
-        data: dptoSorted.map(d => d[1]),
-        backgroundColor: 'rgba(45,212,191,0.7)',
-        borderColor: colors.teal,
-        borderWidth: 1,
-        borderRadius: 3
-    }]);
-
-    // --- Tab 2 Education Charts ---
-    const eduAvg = edadSorted.map(k => mapEdadPET[k] > 0 ? (mapEdadAniosPond[k] / mapEdadPET[k]).toFixed(1) : 0);
-    updateChartData(charts.eduEdad, edadSorted, [{
-        label: 'Años Promedio de Estudio',
-        data: eduAvg,
-        backgroundColor: 'rgba(96,165,250,0.7)',
-        borderColor: colors.blue,
-        borderWidth: 1,
-        borderRadius: 4
-    }]);
-
-    // --- Tab 3 Health Charts ---
-    const cates = Object.keys(mapCateOcupados).filter(c => c !== "NR").sort();
-    const pctIps = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateIPS[c] / mapCateOcupados[c] * 100) : 0);
-    const pctJub = cates.map(c => mapCateOcupados[c] > 0 ? (mapCateJub[c] / mapCateOcupados[c] * 100) : 0);
-    updateChartData(charts.saludCate, cates, [
-        { label: 'IPS (%)', data: pctIps, backgroundColor: 'rgba(45,212,191,0.7)', borderColor: colors.teal, borderWidth: 1, borderRadius: 3 },
-        { label: 'Jubilación (%)', data: pctJub, backgroundColor: 'rgba(251,146,60,0.7)', borderColor: colors.orange, borderWidth: 1, borderRadius: 3 }
-    ]);
-
-    updateChartData(charts.saludDonut, ['Con IPS', 'Sin IPS'], [{
-        data: [totalAportaIPS, totalOcupados - totalAportaIPS],
-        backgroundColor: [colors.teal, '#1e293b'],
-        borderColor: ['rgba(45,212,191,0.3)', 'rgba(255,255,255,0.03)'],
-        borderWidth: 1, hoverOffset: 8
-    }]);
-
-    // --- Tab 4 Laboral Charts ---
-    const cateData = cates.map(c => mapCateOcupados[c]);
-    updateChartData(charts.cateOcupa, cates, [{
-        label: 'Ocupados', data: cateData, backgroundColor: palette.map(c => c + 'b3'), borderWidth: 0, borderRadius: 4
-    }]);
-    updateChartData(charts.ocuDesoc, ['Ocupados', 'Desocupados'], [{
-        data: [totalOcupados, totalDesocupados],
-        backgroundColor: [colors.emerald, colors.red],
-        borderColor: ['rgba(52,211,153,0.3)', 'rgba(248,113,113,0.3)'],
-        borderWidth: 1, hoverOffset: 8
-    }]);
-
-    // --- Tab 5 Historical Charts ---
-    updateHistoricalCharts();
-    updateChartData(charts.smlDonut, ['Menos de 1 SML', '1 SML', 'Más de 1 SML'], [{
-        data: [obrerosSML["Menos de 1 SML"], obrerosSML["1 SML"], obrerosSML["Más de 1 SML"]],
-        backgroundColor: [colors.red, colors.yellow, colors.emerald],
-        borderColor: ['rgba(248,113,113,0.3)', 'rgba(251,191,36,0.3)', 'rgba(52,211,153,0.3)'],
-        borderWidth: 1, hoverOffset: 8
-    }]);
-
-    updateMaps(mapDpto, mapDptoPEA);
 }
 
-function updateChartData(chart, labels, datasets) {
-    chart.data.labels = labels;
-    chart.data.datasets = datasets;
-    chart.update();
-}
+function buildHistoricalChart(group) {
+    const chartId = `chart-hist-${group}`;
+    const allSeries = SERIES_CONFIG[group];
+    const active = activeToggles[group];
+    const allYears = rawData.map(r => r.año);
 
-function updateHistoricalCharts() {
-    const dimTimeGrp = cf.dimension(d => d.trimestre_desc);
-    const grpTime = dimTimeGrp.group().reduce(
-        (p, v) => {
-            p.pet += v.personas_pet; p.pea += (v.ocupados + v.desocupados);
-            p.ocupados += v.ocupados; p.desoc += v.desocupados;
-            p.ips += v.aporta_ips; p.jub += v.aporta_jub;
-            if (v.categocupa === 'Obrero privado' && v.sml_cat !== 'NR') p.sml[v.sml_cat] += v.ocupados;
-            return p;
+    const traces = allSeries
+        .filter(s => active.has(s.col))
+        .map((s, idx) => ({
+            x: allYears,
+            y: rawData.map(r => r[s.col] ?? null),
+            name: s.label,
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: { color: LINE_COLORS[idx % LINE_COLORS.length], width: 2.5, shape: 'spline' },
+            marker: { size: 6, color: LINE_COLORS[idx % LINE_COLORS.length] },
+            hovertemplate: `<b>${s.label}</b><br>Año: %{x}<br>Valor: %{y:.2f} ${s.unit}<extra></extra>`,
+            connectgaps: false
+        }));
+
+    const layout = {
+        ...BASE_LAYOUT,
+        xaxis: {
+            title: 'Año',
+            dtick: 1,
+            gridcolor: '#F1F5F9',
+            fixedrange: false
         },
-        (p, v) => {
-            p.pet -= v.personas_pet; p.pea -= (v.ocupados + v.desocupados);
-            p.ocupados -= v.ocupados; p.desoc -= v.desocupados;
-            p.ips -= v.aporta_ips; p.jub -= v.aporta_jub;
-            if (v.categocupa === 'Obrero privado' && v.sml_cat !== 'NR') p.sml[v.sml_cat] -= v.ocupados;
-            return p;
+        yaxis: {
+            title: 'Valor',
+            gridcolor: '#F1F5F9',
+            fixedrange: false
         },
-        () => ({ pet: 0, pea: 0, ocupados: 0, desoc: 0, ips: 0, jub: 0, sml: { "Menos de 1 SML": 0, "1 SML": 0, "Más de 1 SML": 0 } })
-    );
+        hovermode: 'x unified',
+        legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
+    };
 
-    const timeData = grpTime.all().sort((a, b) => a.key.localeCompare(b.key));
-    dimTimeGrp.dispose();
+    Plotly.react(chartId, traces.length ? traces : [], layout,
+        { ...PLOTLY_CONFIG, modeBarButtonsToRemove: [] });
+}
 
-    const labels = [];
-    const tasaOcup = [], tasaDesoc = [], covIps = [], covJub = [];
-    const smlMenos = [], smlIgual = [], smlMas = [];
+// ─── DOWNLOAD HELPERS ────────────────────────────────────────
+function downloadChart(divId, name) {
+    Plotly.downloadImage(divId, { format: 'png', width: 1400, height: 700, filename: name });
+}
 
-    timeData.forEach(d => {
-        labels.push(d.key);
-        const v = d.value;
-        tasaOcup.push(v.pet > 0 ? (v.ocupados / v.pet * 100) : 0);
-        tasaDesoc.push(v.pea > 0 ? (v.desoc / v.pea * 100) : 0);
-        covIps.push(v.ocupados > 0 ? (v.ips / v.ocupados * 100) : 0);
-        covJub.push(v.ocupados > 0 ? (v.jub / v.ocupados * 100) : 0);
+function downloadCSV(group) {
+    const cols = SERIES_CONFIG[group].map(s => s.col);
+    const colLabels = SERIES_CONFIG[group].map(s => s.label);
+    const header = ['Año', ...colLabels].join(',');
+    const rows = rawData.map(r => [r.año, ...cols.map(c => r[c] ?? '')].join(','));
+    const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `series_${group}.csv`;
+    link.click();
+}
 
-        const tSml = v.sml["Menos de 1 SML"] + v.sml["1 SML"] + v.sml["Más de 1 SML"];
-        smlMenos.push(tSml > 0 ? (v.sml["Menos de 1 SML"] / tSml * 100) : 0);
-        smlIgual.push(tSml > 0 ? (v.sml["1 SML"] / tSml * 100) : 0);
-        smlMas.push(tSml > 0 ? (v.sml["Más de 1 SML"] / tSml * 100) : 0);
+// ─── METODOLOGÍA (MARKDOWN) ──────────────────────────────────
+function loadMetodologia() {
+    fetch('data/metodologia.md')
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.text();
+        })
+        .then(md => renderMetodologia(md))
+        .catch(err => {
+            document.getElementById('met-content').innerHTML =
+                `<div style="color:#DC2626;padding:16px">
+                    <strong>Error al cargar el documento de metodología.</strong><br>
+                    Asegúrate de servir la aplicación desde un servidor web local.<br>
+                    <code>${err.message}</code>
+                </div>`;
+        });
+}
+
+function renderMetodologia(md) {
+    const html = marked.parse(md);
+    const contentEl = document.getElementById('met-content');
+    contentEl.innerHTML = html;
+
+    // Build Table of Contents from headings
+    buildTOC(contentEl);
+}
+
+function buildTOC(contentEl) {
+    const toc = document.getElementById('met-toc');
+    const heads = contentEl.querySelectorAll('h2, h3');
+    toc.innerHTML = '';
+
+    heads.forEach((h, i) => {
+        const id = 'met-' + i;
+        h.id = id;
+
+        const a = document.createElement('a');
+        a.href = '#' + id;
+        a.className = 'toc-link ' + h.tagName.toLowerCase();
+        a.textContent = h.textContent;
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        toc.appendChild(a);
     });
-
-    updateChartData(charts.evolLaboral, labels, [
-        { label: 'T. Ocupación (%)', data: tasaOcup, borderColor: colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true },
-        { label: 'T. Desocupación (%)', data: tasaDesoc, borderColor: colors.red, backgroundColor: 'transparent' }
-    ]);
-
-    updateChartData(charts.evolSalud, labels, [
-        { label: 'Cobertura IPS (%)', data: covIps, borderColor: colors.teal, backgroundColor: 'transparent' },
-        { label: 'Aporte Jubilación (%)', data: covJub, borderColor: colors.orange, backgroundColor: 'transparent' }
-    ]);
-
-    updateChartData(charts.smlEvol, labels, [
-        { label: 'Menos de 1 SML (%)', data: smlMenos, backgroundColor: colors.red },
-        { label: '1 SML (%)', data: smlIgual, backgroundColor: colors.yellow },
-        { label: 'Más de 1 SML (%)', data: smlMas, backgroundColor: colors.green }
-    ]);
 }
 
-/* ============================
-    Leaflet Map Rendering
-============================ */
-function getColorPop(d) {
-    return d > 300000 ? '#047857' : // emerald-700
-        d > 100000 ? '#10b981' : // emerald-500
-            d > 50000 ? '#34d399' : // emerald-400
-                d > 20000 ? '#6ee7b7' : // emerald-300
-                    '#a7f3d0';  // emerald-200
-}
-
-function getColorLab(d) {
-    return d > 70 ? '#1d4ed8' : // blue-700
-        d > 65 ? '#2563eb' : // blue-600
-            d > 60 ? '#3b82f6' : // blue-500
-                d > 55 ? '#60a5fa' : // blue-400
-                    '#93c5fd';  // blue-300
-}
-
-function onEachMapFeature(feature, layer, mapType) {
-    layer.on({
-        mouseover: (e) => {
-            var l = e.target;
-            l.setStyle({ weight: 3, color: '#f8fafc', dashArray: '', fillOpacity: 0.9 });
-            l.bringToFront();
-        },
-        mouseout: (e) => {
-            geojsonLayers[mapType].resetStyle(e.target);
-        }
-    });
-}
-
-function initMaps() {
-    if (!geoJsonData) return;
-
-    // Define standard carto dark layer
-    const darkTile = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    const tileOptions = { attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 18 };
-
-    // 1. Demografia Map
-    maps.demografia = L.map('map-demografia').setView([-23.5, -58.0], 6);
-    L.tileLayer(darkTile, tileOptions).addTo(maps.demografia);
-
-    geojsonLayers.demografia = L.geoJson(geoJsonData, {
-        style: () => ({ fillColor: '#a7f3d0', weight: 2, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.7 }),
-        onEachFeature: (f, l) => onEachMapFeature(f, l, 'demografia')
-    }).addTo(maps.demografia);
-
-    // 2. Laboral Map
-    maps.laboral = L.map('map-laboral').setView([-23.5, -58.0], 6);
-    L.tileLayer(darkTile, tileOptions).addTo(maps.laboral);
-
-    geojsonLayers.laboral = L.geoJson(geoJsonData, {
-        style: () => ({ fillColor: '#93c5fd', weight: 2, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.8 }),
-        onEachFeature: (f, l) => onEachMapFeature(f, l, 'laboral')
-    }).addTo(maps.laboral);
-}
-
-function updateMaps(mapDpto, mapDptoPEA) {
-    if (!geoJsonData || !geojsonLayers.demografia || !geojsonLayers.laboral) return;
-
-    // Update Demografia Layer (PET)
-    geojsonLayers.demografia.eachLayer(layer => {
-        const dptoName = layer.feature.properties.dpto_name;
-        const pet = mapDpto[dptoName] || 0;
-        layer.setStyle({ fillColor: getColorPop(pet) });
-
-        layer.bindPopup(`
-            <div class="custom-popup">
-                <strong>${dptoName}</strong>
-                Población PET: ${formatNumber(Math.round(pet))}
-            </div>
-        `);
-    });
-
-    // Update Laboral Layer (Tasa FT)
-    geojsonLayers.laboral.eachLayer(layer => {
-        const dptoName = layer.feature.properties.dpto_name;
-        const pet = mapDpto[dptoName] || 0;
-        const pea = mapDptoPEA[dptoName] || 0;
-        const tasa = pet > 0 ? (pea / pet) * 100 : 0;
-
-        layer.setStyle({ fillColor: getColorLab(tasa) });
-
-        layer.bindPopup(`
-            <div class="custom-popup">
-                <strong>${dptoName}</strong>
-                Tasa Fuerza Trabajo: ${tasa.toFixed(1)}%<br>
-                Fuerza Trabajo (PEA): ${formatNumber(Math.round(pea))}
-            </div>
-        `);
-    });
+// ─── ERROR DISPLAY ───────────────────────────────────────────
+function showError(msg) {
+    console.error(msg);
 }

@@ -4,540 +4,471 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard EPHC │ Paracel - Monitor de Impacto Social</title>
+    <title>Tablero de Indicadores Departamentales</title>
     <meta name="description"
-        content="Tablero interactivo del mercado laboral paraguayo basado en datos de la Encuesta Permanente de Hogares Continua (EPHC) del INE. Desarrollado por Paracel S.A.">
+        content="Tablero interactivo de indicadores socioeconómicos del departamento. Demografía, mercado laboral, salud y educación.">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700&display=swap"
         rel="stylesheet">
-    <!-- Chart.js + Datalabels -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <!-- Crossfilter -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Marked.js – Markdown renderer -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Papa Parse – CSV reader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 
 <body>
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-logo">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M2 17L12 22L22 17" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M2 12L12 17L22 12" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <defs>
-                        <linearGradient id="g1" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#34D399" />
-                            <stop offset="1" stop-color="#3B82F6" />
-                        </linearGradient>
-                    </defs>
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="header-brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                </div>
+                <div>
+                    <h1>Tablero de Indicadores</h1>
+                    <p class="header-sub">Monitoreo Socioeconómico Departamental</p>
+                </div>
+            </div>
+            <div class="header-meta">
+                <a href="ephc/" class="badge-link" title="Dashboard EPHC Trimestral">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    Dashboard EPHC Trimestral
+                </a>
+                <span class="badge-source">Fuente: DANE | MEN | MSPS</span>
+                <span class="badge-year" id="header-year-badge">Año 2024</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN TAB NAV ===== -->
+    <nav class="main-tab-nav">
+        <div class="nav-inner">
+            <button class="main-tab-btn active" data-tab="tab-actual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-            </div>
-            <div>
-                <div class="brand-name">EPHC Dashboard</div>
-                <div class="brand-sub">Monitor Social Paracel</div>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="section-label">PERIODO</div>
-            <div class="filter-group">
-                <select id="trimestre-select" class="filter-select">
-                    <option value="ALL">Histórico Completo</option>
-                </select>
-                <div class="filter-hint">Configura el corte temporal global</div>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="section-label">GÉNERO</div>
-            <div class="toggle-group" id="filter-sexo">
-                <button class="toggle-btn active" data-val="ALL">
-                    <span class="toggle-icon">⟐</span> Todos
-                </button>
-                <button class="toggle-btn" data-val="Hombres">
-                    <span class="toggle-icon">♂</span> Hombres
-                </button>
-                <button class="toggle-btn" data-val="Mujeres">
-                    <span class="toggle-icon">♀</span> Mujeres
-                </button>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="section-label">TRAMO DE EDAD</div>
-            <div class="age-chips" id="filter-edad">
-                <button class="age-chip active" data-val="ALL">Todos</button>
-                <button class="age-chip" data-val="15-24">15–24</button>
-                <button class="age-chip" data-val="25-34">25–34</button>
-                <button class="age-chip" data-val="35-44">35–44</button>
-                <button class="age-chip" data-val="45-54">45–54</button>
-                <button class="age-chip" data-val="55-64">55–64</button>
-                <button class="age-chip" data-val="65+">65+</button>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="section-label">DEPARTAMENTO</div>
-            <div class="filter-group">
-                <select id="dpto-select" class="filter-select">
-                    <option value="ALL">Todo el País</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <div class="section-label">CATEGORÍA OCUPACIONAL</div>
-            <div class="filter-group">
-                <select id="cate-select" class="filter-select">
-                    <option value="ALL">Todas las Categorías</option>
-                    <option value="Obrero privado">Obrero privado</option>
-                    <option value="Obrero público">Obrero público</option>
-                    <option value="Cuenta propia">Cuenta propia</option>
-                    <option value="Empleador/patrón">Empleador/patrón</option>
-                    <option value="Doméstico/a">Trabajador/a Doméstico/a</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="sidebar-footer">
-            <button id="btn-reset-filters" class="btn-reset">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                    <path d="M3 3v5h5" />
-                </svg>
-                Resetear Filtros
+                Radiografía Actual
             </button>
-            <div class="data-source">Fuente: INE – EPHC 2015-2025</div>
-        </div>
-    </aside>
-
-    <!-- ===== MAIN APP ===== -->
-    <div class="app-main" id="app-main">
-
-        <!-- Top Bar -->
-        <header class="topbar">
-            <button class="sidebar-toggle" id="sidebar-toggle">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
+            <button class="main-tab-btn" data-tab="tab-historico">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                 </svg>
+                Evolución Histórica
             </button>
-            <div class="topbar-title">
-                <span id="tab-current-name">Demografía</span>
-                <span class="breadcrumb">│ EPHC Trimestral</span>
-            </div>
-            <div class="topbar-meta">
-                <span class="live-badge">
-                    <span class="pulse-dot"></span> En Vivo
-                </span>
-                <span class="meta-label">Dataset EPHC 2015–2025</span>
-            </div>
-        </header>
-
-        <!-- ===== TAB NAVIGATION ===== -->
-        <nav class="tab-nav">
-            <button class="tab-nav-btn active" data-target="tab-demografia">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                Demografía
-            </button>
-            <button class="tab-nav-btn" data-target="tab-educacion">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <button class="main-tab-btn" data-tab="tab-metodologia">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 </svg>
-                Educación
+                Marco Conceptual
             </button>
-            <button class="tab-nav-btn" data-target="tab-salud">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-                Salud
-            </button>
-            <button class="tab-nav-btn" data-target="tab-laboral">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <rect x="2" y="7" width="20" height="14" rx="2" />
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-                Mercado Laboral
-            </button>
-            <button class="tab-nav-btn" data-target="tab-evolucion">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                </svg>
-                Series Históricas
-            </button>
-        </nav>
+        </div>
+    </nav>
 
-        <!-- ===== CONTENT ===== -->
-        <div class="content-area">
+    <!-- ===== CONTENT WRAPPER ===== -->
+    <main class="content-wrapper">
 
-            <!-- TAB 1: DEMOGRAFÍA -->
-            <section id="tab-demografia" class="tab-pane active">
-                <div class="kpi-row">
-                    <div class="kpi-card accent-emerald">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        <!-- ============================================================
+             TAB 1: RADIOGRAFÍA ACTUAL
+        ============================================================ -->
+        <section id="tab-actual" class="tab-panel active">
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-bar-inner">
+                    <div class="filter-item">
+                        <label for="year-select">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                height="14">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Población PET Filtrada</div>
-                            <div class="kpi-value" id="kpi-pob-total">—</div>
-                        </div>
+                            Año de Análisis
+                        </label>
+                        <select id="year-select"></select>
                     </div>
-                    <div class="kpi-card accent-blue">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 16v-4" />
-                                <path d="M12 8h.01" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Rango de Edad Mayoritario</div>
-                            <div class="kpi-value kpi-text" id="kpi-edad-mayor">—</div>
-                        </div>
-                    </div>
-                    <div class="kpi-card accent-purple">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                <polyline points="9 22 9 12 15 12 15 22" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Depto. Mayoritario</div>
-                            <div class="kpi-value kpi-text" id="kpi-dpto-mayor">—</div>
-                        </div>
+                    <div class="filter-info" id="filter-info">
+                        Mostrando datos del año más reciente disponible.
                     </div>
                 </div>
-                <div class="charts-3col">
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Distribución por Sexo</h3>
-                            <span class="chart-badge">PET</span>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="sexoChart"></canvas>
-                        </div>
+            </div>
+
+            <!-- BLOQUE 1: DEMOGRAFÍA -->
+            <div class="indicator-block" id="bloque-demo">
+                <div class="block-header">
+                    <div class="block-icon icon-blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
                     </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Distribución por Edad</h3>
-                            <span class="chart-badge">PET</span>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="edadChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Por Departamento</h3>
-                            <span class="chart-badge">Top 10</span>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="dptoChart"></canvas>
-                        </div>
+                    <div>
+                        <h2>Estructura de la Población</h2>
+                        <p>Distribución etaria, estructura demográfica e índices de dependencia</p>
                     </div>
                 </div>
-                <div class="map-section">
-                    <div class="chart-card map-card">
-                        <div class="chart-card-header">
-                            <h3>Mapa de Distribución Geográfica – Población en Edad de Trabajar</h3>
-                            <span class="chart-badge map-badge">Mapa Interactivo</span>
+
+                <!-- Población Total -->
+                <div class="metric-hero">
+                    <div class="metric-hero-card">
+                        <span class="hero-label">Población Total del Departamento</span>
+                        <span class="hero-value" id="kpi-pob-total">—</span>
+                        <span class="hero-sub">habitantes registrados</span>
+                    </div>
+                </div>
+
+                <!-- Pirámide + Índices -->
+                <div class="block-2col">
+                    <div class="chart-box">
+                        <div class="chart-box-header">
+                            <h3>Pirámide Poblacional por Grupos Quinquenales</h3>
                         </div>
-                        <div id="map-demografia" class="leaflet-map"></div>
-                        <div class="map-legend" id="legend-demo">
-                            <div class="legend-title">Personas PET</div>
-                            <div class="legend-items">
-                                <div class="legend-item"><span style="background:#047857"></span>> 300.000</div>
-                                <div class="legend-item"><span style="background:#10b981"></span>100–300K</div>
-                                <div class="legend-item"><span style="background:#34d399"></span>50–100K</div>
-                                <div class="legend-item"><span style="background:#6ee7b7"></span>20–50K</div>
-                                <div class="legend-item"><span style="background:#a7f3d0"></span>
-                                    < 20.000</div>
-                                </div>
+                        <div id="chart-piramide" class="chart-area"></div>
+                    </div>
+                    <div class="metrics-stack">
+                        <h3 class="stack-title">Índices Demográficos</h3>
+                        <div class="metric-card accent-steel" id="kpi-dep-total-card">
+                            <div class="mc-icon">📊</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Tasa de Dependencia Total</span>
+                                <span class="mc-value" id="kpi-dep-total">—</span>
+                                <span class="mc-unit">personas dep. / 100 activos</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-amber">
+                            <div class="mc-icon">👴</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Dep. Adultos Mayores</span>
+                                <span class="mc-value" id="kpi-dep-adultos">—</span>
+                                <span class="mc-unit">% de la PET</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-teal">
+                            <div class="mc-icon">👶</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Dep. de Jóvenes</span>
+                                <span class="mc-value" id="kpi-dep-jovenes">—</span>
+                                <span class="mc-unit">% de la PET</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-purple">
+                            <div class="mc-icon">🔄</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Índice de Envejecimiento</span>
+                                <span class="mc-value" id="kpi-envejecimiento">—</span>
+                                <span class="mc-unit">personas 65+ / 100 jóvenes</span>
                             </div>
                         </div>
                     </div>
-            </section>
+                </div>
+            </div>
 
-            <!-- TAB 2: EDUCACIÓN -->
-            <section id="tab-educacion" class="tab-pane">
-                <div class="kpi-row">
-                    <div class="kpi-card accent-purple">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Promedio Años de Estudio</div>
-                            <div class="kpi-value" id="kpi-anios-estudio">—</div>
-                        </div>
+            <!-- BLOQUE 2: MERCADO LABORAL -->
+            <div class="indicator-block" id="bloque-laboral">
+                <div class="block-header">
+                    <div class="block-icon icon-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <rect x="2" y="7" width="20" height="14" rx="2" />
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Situación del Empleo</h2>
+                        <p>Participación laboral, ocupación, desempleo y calidad del empleo</p>
                     </div>
                 </div>
-                <div class="charts-full">
-                    <div class="chart-card wide">
-                        <div class="chart-card-header">
-                            <h3>Promedio de Años de Estudio por Tramo de Edad</h3>
-                            <span class="chart-badge">Ponderado por PET</span>
-                        </div>
-                        <div class="chart-body chart-tall">
-                            <canvas id="educacionEdadChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- TAB 3: SALUD -->
-            <section id="tab-salud" class="tab-pane">
-                <div class="kpi-row">
-                    <div class="kpi-card accent-teal">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Cobertura IPS</div>
-                            <div class="kpi-value" id="kpi-ips">— %</div>
-                            <div class="kpi-sub">De los ocupados filtrados</div>
+                <!-- Tasas principales -->
+                <div class="kpi-3col">
+                    <div class="kpi-big blue">
+                        <div class="kpi-big-icon">📈</div>
+                        <div class="kpi-big-body">
+                            <span class="kpi-big-label">Tasa Global de Participación</span>
+                            <span class="kpi-big-value" id="kpi-tgp">—</span>
+                            <span class="kpi-big-desc">Población económicamente activa sobre PET</span>
                         </div>
                     </div>
-                    <div class="kpi-card accent-orange">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
+                    <div class="kpi-big green">
+                        <div class="kpi-big-icon">✅</div>
+                        <div class="kpi-big-body">
+                            <span class="kpi-big-label">Tasa de Ocupación</span>
+                            <span class="kpi-big-value" id="kpi-to">—</span>
+                            <span class="kpi-big-desc">Ocupados sobre población en edad de trabajar</span>
                         </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Aporte Jubilación</div>
-                            <div class="kpi-value" id="kpi-jubilacion">— %</div>
-                            <div class="kpi-sub">De los ocupados filtrados</div>
+                    </div>
+                    <div class="kpi-big red">
+                        <div class="kpi-big-icon">⚠️</div>
+                        <div class="kpi-big-body">
+                            <span class="kpi-big-label">Tasa de Desempleo</span>
+                            <span class="kpi-big-value" id="kpi-td">—</span>
+                            <span class="kpi-big-desc">Desocupados sobre población activa (PEA)</span>
                         </div>
                     </div>
                 </div>
-                <div class="charts-2col">
-                    <div class="chart-card wide">
-                        <div class="chart-card-header">
-                            <h3>Cobertura IPS y Jubilación por Categoría Ocupacional</h3>
-                            <span class="chart-badge">% sobre ocupados</span>
-                        </div>
-                        <div class="chart-body chart-tall">
-                            <canvas id="saludCateChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Proporción General IPS</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="saludDonutChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- TAB 4: MERCADO LABORAL -->
-            <section id="tab-laboral" class="tab-pane">
-                <div class="kpi-row kpi-4col">
-                    <div class="kpi-card accent-blue">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
+                <!-- Ramas + Calidad -->
+                <div class="block-2col">
+                    <div class="chart-box">
+                        <div class="chart-box-header">
+                            <h3>Ocupados por Ramas de Actividad Económica</h3>
                         </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Tasa Fuerza Trabajo (TFT)</div>
-                            <div class="kpi-value" id="kpi-tft">— %</div>
-                            <div class="kpi-sub" id="poblacion-ref-lab">Ref: — PET</div>
-                        </div>
+                        <div id="chart-ramas" class="chart-area"></div>
                     </div>
-                    <div class="kpi-card accent-emerald">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M16 12l-4 4-4-4" />
-                                <path d="M12 8v8" />
-                            </svg>
+                    <div class="metrics-stack">
+                        <h3 class="stack-title">Calidad del Empleo</h3>
+                        <div class="metric-card accent-red">
+                            <div class="mc-icon">🔍</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Informalidad Laboral</span>
+                                <span class="mc-value" id="kpi-informal">—</span>
+                                <span class="mc-unit">% de los ocupados</span>
+                            </div>
                         </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Tasa de Ocupación</div>
-                            <div class="kpi-value" id="kpi-ocupacion">— %</div>
+                        <div class="metric-card accent-amber">
+                            <div class="mc-icon">⏱</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Subempleo</span>
+                                <span class="mc-value" id="kpi-subempleo">—</span>
+                                <span class="mc-unit">% de los ocupados</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="kpi-card accent-red">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="15" y1="9" x2="9" y2="15" />
-                                <line x1="9" y1="9" x2="15" y2="15" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Tasa de Desocupación</div>
-                            <div class="kpi-value" id="kpi-desocupacion">— %</div>
-                        </div>
-                    </div>
-                    <div class="kpi-card accent-yellow">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <rect x="2" y="7" width="20" height="14" rx="2" />
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Categoria Ocupacional</div>
-                            <div class="kpi-value kpi-text" id="kpi-top-cate">—</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="charts-2col">
-                    <div class="chart-card wide">
-                        <div class="chart-card-header">
-                            <h3>Distribución de Ocupados por Categoría</h3>
-                            <span class="chart-badge">Ponderado</span>
-                        </div>
-                        <div class="chart-body chart-tall">
-                            <canvas id="cateOcupacionChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Ocupados vs Desocupados</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="ocuDesocDonutChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="map-section">
-                    <div class="chart-card map-card">
-                        <div class="chart-card-header">
-                            <h3>Mapa de Tasa de Fuerza de Trabajo por Departamento</h3>
-                            <span class="chart-badge map-badge">Mapa Interactivo</span>
-                        </div>
-                        <div id="map-laboral" class="leaflet-map"></div>
-                        <div class="map-legend" id="legend-lab">
-                            <div class="legend-title">TFT (%)</div>
-                            <div class="legend-items">
-                                <div class="legend-item"><span style="background:#1d4ed8"></span>> 70%</div>
-                                <div class="legend-item"><span style="background:#2563eb"></span>65–70%</div>
-                                <div class="legend-item"><span style="background:#3b82f6"></span>60–65%</div>
-                                <div class="legend-item"><span style="background:#60a5fa"></span>55–60%</div>
-                                <div class="legend-item"><span style="background:#93c5fd"></span>
-                                    < 55%</div>
-                                </div>
+                        <div class="metric-card accent-green">
+                            <div class="mc-icon">💰</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Ingreso Promedio</span>
+                                <span class="mc-value" id="kpi-ingreso">—</span>
+                                <span class="mc-unit">pesos / mes (promedio)</span>
                             </div>
                         </div>
                     </div>
-            </section>
+                </div>
+            </div>
 
-            <!-- TAB 5: SERIES HISTÓRICAS + SML -->
-            <section id="tab-evolucion" class="tab-pane">
-                <div class="kpi-row">
-                    <div class="kpi-card accent-emerald">
-                        <div class="kpi-icon-wrap">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </div>
-                        <div class="kpi-body">
-                            <div class="kpi-label">Obreros Priv. Superan SML</div>
-                            <div class="kpi-value" id="kpi-supera-sml">— %</div>
-                            <div class="kpi-sub positive">Condición Favorable</div>
-                        </div>
+            <!-- BLOQUE 3: SALUD -->
+            <div class="indicator-block" id="bloque-salud">
+                <div class="block-header">
+                    <div class="block-icon icon-teal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Cobertura y Condiciones de Salud</h2>
+                        <p>Aseguramiento, mortalidad y esperanza de vida</p>
                     </div>
                 </div>
-                <div class="charts-2col">
-                    <div class="chart-card wide">
-                        <div class="chart-card-header">
-                            <h3>Evolución Histórica: Tasas de Ocupación y Desocupación</h3>
-                            <span class="chart-badge">Serie 2015–2025</span>
-                        </div>
-                        <div class="chart-body chart-tall">
-                            <canvas id="evolucionLaboralChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Cobertura IPS y Jubilación en el Tiempo</h3>
-                        </div>
-                        <div class="chart-body chart-tall">
-                            <canvas id="evolucionSaludChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-card stacked-section">
-                    <div class="chart-card-header">
-                        <h3>Distribución de Obreros Privados vs. Salario Mínimo Legal – Serie 2015–2025</h3>
-                        <span class="chart-badge">SML Histórico Anualizado</span>
-                    </div>
-                    <div class="chart-body chart-xl">
-                        <canvas id="smlEvolucionChart"></canvas>
-                    </div>
-                </div>
-                <div class="charts-2col">
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <h3>Distribución Actual vs. SML</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas id="smlDonutChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="kpi-card accent-blue info-card">
-                        <div class="info-title">Sobre el SML Histórico</div>
-                        <ul class="info-list">
-                            <li>Valores anualizados según resoluciones del MTE Paraguay.</li>
-                            <li>El umbral ±10% permite clasificar en "1 SML".</li>
-                            <li>Aplica solo a <strong>Obreros Privados</strong> con ingreso declarado.</li>
-                            <li>Los filtros de la barra lateral afectan todos los gráficos.</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
 
-        </div><!-- /content-area -->
-    </div><!-- /app-main -->
+                <div class="block-2col">
+                    <div class="chart-box">
+                        <div class="chart-box-header">
+                            <h3>Distribución por Tipo de Afiliación al Sistema de Salud</h3>
+                        </div>
+                        <div id="chart-aseguramiento" class="chart-area chart-md"></div>
+                    </div>
+                    <div class="metrics-stack">
+                        <h3 class="stack-title">Indicadores Vitales</h3>
+                        <div class="metric-card accent-teal">
+                            <div class="mc-icon">🛡</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Cobertura Total en Salud</span>
+                                <span class="mc-value" id="kpi-cobertura-salud">—</span>
+                                <span class="mc-unit">% de la población asegurada</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-red">
+                            <div class="mc-icon">🍼</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Mortalidad Infantil</span>
+                                <span class="mc-value" id="kpi-mortalidad">—</span>
+                                <span class="mc-unit">por cada 1.000 nacidos vivos</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-blue">
+                            <div class="mc-icon">👪</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Tasa de Natalidad</span>
+                                <span class="mc-value" id="kpi-natalidad">—</span>
+                                <span class="mc-unit">por cada 1.000 habitantes</span>
+                            </div>
+                        </div>
+                        <div class="metric-card accent-green">
+                            <div class="mc-icon">🌿</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Esperanza de Vida</span>
+                                <span class="mc-value" id="kpi-esperanza">—</span>
+                                <span class="mc-unit">años al nacer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE 4: EDUCACIÓN -->
+            <div class="indicator-block" id="bloque-educ">
+                <div class="block-header">
+                    <div class="block-icon icon-purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Nivel Educativo y Cobertura</h2>
+                        <p>Distribución de la población por nivel educativo alcanzado y tasas de escolarización</p>
+                    </div>
+                </div>
+
+                <!-- Nivel educativo distribucion + analfabetismo -->
+                <div class="block-2col-wide">
+                    <div class="chart-box">
+                        <div class="chart-box-header">
+                            <h3>Nivel Educativo Alcanzado (Pob. 15 años y más)</h3>
+                        </div>
+                        <div id="chart-educacion-nivel" class="chart-area chart-md"></div>
+                    </div>
+                    <div class="metrics-stack">
+                        <h3 class="stack-title">Alertas Educativas</h3>
+                        <div class="metric-card accent-red big-metric">
+                            <div class="mc-icon">📖</div>
+                            <div class="mc-body">
+                                <span class="mc-label">Tasa de Analfabetismo</span>
+                                <span class="mc-value xl" id="kpi-analfabetismo">—</span>
+                                <span class="mc-unit">% de la pob. de 15 años y más</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cobertura escolar -->
+                <div class="chart-box full-width">
+                    <div class="chart-box-header">
+                        <h3>Tasas de Cobertura Escolar por Nivel — Año seleccionado</h3>
+                        <span class="legend-note">Neta = Edad oficial | Bruta = Matrícula total</span>
+                    </div>
+                    <div id="chart-cobertura-educ" class="chart-area chart-md"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TAB 2: EVOLUCIÓN HISTÓRICA
+        ============================================================ -->
+        <section id="tab-historico" class="tab-panel">
+            <div class="subtab-nav" id="subtab-nav-hist">
+                <button class="subtab-btn active" data-subtab="hist-demo">📊 Series Demográficas</button>
+                <button class="subtab-btn" data-subtab="hist-lab">💼 Mercado Laboral</button>
+                <button class="subtab-btn" data-subtab="hist-social">🏥 Salud y Educación</button>
+            </div>
+
+            <!-- Sub-tab: Demográficas -->
+            <div id="hist-demo" class="subtab-panel active">
+                <div class="series-controls">
+                    <label>Seleccionar indicadores:</label>
+                    <div class="indicator-toggles" id="toggles-demo"></div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-box-header">
+                        <h3>Evolución de Indicadores Demográficos (2015–2024)</h3>
+                        <div class="chart-actions">
+                            <button class="btn-dl" onclick="downloadChart('chart-hist-demo','series_demograficas')">⬇
+                                PNG</button>
+                            <button class="btn-dl" onclick="downloadCSV('demo')">⬇ CSV</button>
+                        </div>
+                    </div>
+                    <div id="chart-hist-demo" class="chart-area chart-xl"></div>
+                </div>
+            </div>
+
+            <!-- Sub-tab: Mercado Laboral -->
+            <div id="hist-lab" class="subtab-panel">
+                <div class="series-controls">
+                    <label>Seleccionar indicadores:</label>
+                    <div class="indicator-toggles" id="toggles-lab"></div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-box-header">
+                        <h3>Evolución del Mercado Laboral (2015–2024)</h3>
+                        <div class="chart-actions">
+                            <button class="btn-dl" onclick="downloadChart('chart-hist-lab','series_laborales')">⬇
+                                PNG</button>
+                            <button class="btn-dl" onclick="downloadCSV('lab')">⬇ CSV</button>
+                        </div>
+                    </div>
+                    <div id="chart-hist-lab" class="chart-area chart-xl"></div>
+                </div>
+            </div>
+
+            <!-- Sub-tab: Salud y Educación -->
+            <div id="hist-social" class="subtab-panel">
+                <div class="series-controls">
+                    <label>Seleccionar indicadores:</label>
+                    <div class="indicator-toggles" id="toggles-social"></div>
+                </div>
+                <div class="chart-box full-width">
+                    <div class="chart-box-header">
+                        <h3>Evolución de Salud y Educación (2015–2024)</h3>
+                        <div class="chart-actions">
+                            <button class="btn-dl" onclick="downloadChart('chart-hist-social','series_salud_educ')">⬇
+                                PNG</button>
+                            <button class="btn-dl" onclick="downloadCSV('social')">⬇ CSV</button>
+                        </div>
+                    </div>
+                    <div id="chart-hist-social" class="chart-area chart-xl"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TAB 3: MARCO CONCEPTUAL
+        ============================================================ -->
+        <section id="tab-metodologia" class="tab-panel">
+            <div class="metodologia-layout">
+                <aside class="metodologia-nav" id="metodologia-nav">
+                    <p class="nav-meta">Contenido del documento</p>
+                    <div id="met-toc"></div>
+                </aside>
+                <article class="metodologia-content">
+                    <div id="met-content" class="markdown-body">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Cargando documento de metodología...</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <p>Tablero de Indicadores Departamentales — Datos al corte de diciembre 2024 — DANE · MEN · MSPS</p>
+    </footer>
 
     <script src="js/app.js"></script>
 </body>
