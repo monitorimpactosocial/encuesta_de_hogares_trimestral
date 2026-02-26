@@ -1,31 +1,30 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero EPHC │ Monitor de Impacto Social - Paracel</title>
+    <title>Tablero EPHC │ Monitor de Impacto Social – Paracel</title>
     <meta name="description"
         content="Tablero de indicadores socioeconómicos basado en la Encuesta Permanente de Hogares Continua (EPHC) del INE Paraguay.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700&display=swap"
         rel="stylesheet">
-    <!-- Crossfilter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
-    <!-- Plotly -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 
 <body>
 
-    <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+    <!-- ════ TOOLTIP BUBBLE (shared, repositioned via JS) ════ -->
+    <div id="tooltip-bubble" class="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
+
+    <!-- ════ SIDEBAR ════ -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="brand-dot"></div>
@@ -40,7 +39,7 @@
             <div class="filter-group">
                 <label class="filter-label" for="f-anio">Año</label>
                 <select id="f-anio" class="filter-select">
-                    <option value="ALL">Todos</option>
+                    <option value="ALL">Todos los años</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -103,12 +102,12 @@
         </div>
     </aside>
 
-    <!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
+    <!-- ════ APP MAIN ════ -->
     <div class="app-main" id="app-main">
 
         <!-- Topbar -->
         <header class="topbar">
-            <button class="sidebar-toggle" id="sidebar-toggle">
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Mostrar/ocultar filtros">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <line x1="3" y1="12" x2="21" y2="12" />
@@ -121,7 +120,13 @@
             </div>
             <div class="topbar-actions">
                 <div class="filter-status" id="filter-status">Cargando datos…</div>
-                <a href="ephc/" class="topbar-link">Dashboard Avanzado →</a>
+                <!-- Dark mode toggle -->
+                <button id="theme-toggle" class="theme-btn" title="Cambiar a modo oscuro">
+                    <span class="theme-icon-light">☀️</span>
+                    <span class="theme-icon-dark">🌙</span>
+                </button>
+                <a href="ephc/" class="topbar-link" title="Dashboard EPHC Avanzado con Crossfilter">Dashboard Avanzado
+                    →</a>
             </div>
         </header>
 
@@ -155,249 +160,374 @@
         <!-- Content -->
         <div class="content-area">
 
-            <!-- ════════════ TAB 1: RADIOGRAFÍA ACTUAL ════════════ -->
+            <!-- ════════ TAB 1: RADIOGRAFÍA ACTUAL ════════ -->
             <section id="tab-actual" class="tab-pane active">
+                <div class="tab-layout">
 
-                <!-- KPI Strip -->
-                <div class="kpi-strip">
-                    <div class="kpi-tile tile-blue">
-                        <div class="kpi-tile-label">Población PET</div>
-                        <div class="kpi-tile-val" id="kpi-pet">—</div>
-                        <div class="kpi-tile-sub">personas en muestra</div>
-                    </div>
-                    <div class="kpi-tile tile-green">
-                        <div class="kpi-tile-label">Tasa de Ocupación</div>
-                        <div class="kpi-tile-val" id="kpi-to">—</div>
-                        <div class="kpi-tile-sub">ocupados / PET</div>
-                    </div>
-                    <div class="kpi-tile tile-red">
-                        <div class="kpi-tile-label">Tasa de Desocupación</div>
-                        <div class="kpi-tile-val" id="kpi-td">—</div>
-                        <div class="kpi-tile-sub">desocupados / PEA</div>
-                    </div>
-                    <div class="kpi-tile tile-amber">
-                        <div class="kpi-tile-label">Tasa de Part. (TFT)</div>
-                        <div class="kpi-tile-val" id="kpi-tft">—</div>
-                        <div class="kpi-tile-sub">PEA / PET</div>
-                    </div>
-                    <div class="kpi-tile tile-teal">
-                        <div class="kpi-tile-label">Cobertura IPS</div>
-                        <div class="kpi-tile-val" id="kpi-ips">—</div>
-                        <div class="kpi-tile-sub">sobre ocupados</div>
-                    </div>
-                    <div class="kpi-tile tile-purple">
-                        <div class="kpi-tile-label">Años Prom. Estudio</div>
-                        <div class="kpi-tile-val" id="kpi-educ">—</div>
-                        <div class="kpi-tile-sub">promedio ponderado</div>
-                    </div>
-                </div>
+                    <!-- Vertical section nav -->
+                    <aside class="section-nav" id="snav-actual">
+                        <p class="snav-title">Secciones</p>
+                        <a class="snav-link active" href="#sec-kpis">📊 Indicadores Clave</a>
+                        <a class="snav-link" href="#sec-demo">👥 Demografía</a>
+                        <a class="snav-link" href="#sec-empleo">💼 Empleo</a>
+                        <a class="snav-link" href="#sec-salud">🏥 Seg. Social</a>
+                        <a class="snav-link" href="#sec-educ">📚 Educación</a>
+                    </aside>
 
-                <!-- Bloque 1: Demografía -->
-                <div class="block-card">
-                    <div class="block-header">
-                        <div class="block-icon-wrap icon-blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                                height="18">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2>Estructura de la Población</h2>
-                            <p>PET filtrada por los criterios seleccionados — distribución por sexo, tramo de edad y
-                                departamento</p>
-                        </div>
-                    </div>
-                    <div class="block-2col">
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Distribución por Tramo de Edad y Sexo</h3><span class="chart-badge">PET
-                                    ponderada</span>
-                            </div>
-                            <div id="ch-edad-sexo" class="ch-area"></div>
-                        </div>
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Top 10 Departamentos – PET</h3><span class="chart-badge">personas</span>
-                            </div>
-                            <div id="ch-dpto-pet" class="ch-area"></div>
-                        </div>
-                    </div>
-                    <div class="chart-box map-box">
-                        <div class="chart-box-hdr">
-                            <h3>Mapa de Distribución Geográfica – PET por Departamento</h3><span
-                                class="chart-badge map-badge">Interactivo</span>
-                        </div>
-                        <div id="map-demo" class="map-pane"></div>
-                        <div class="map-legend" id="legend-demo">
-                            <div class="legend-title">Personas PET</div>
-                            <div class="legend-items">
-                                <div class="legend-item"><span style="background:#1d4ed8"></span>&gt; 300K</div>
-                                <div class="legend-item"><span style="background:#3b82f6"></span>100–300K</div>
-                                <div class="legend-item"><span style="background:#93c5fd"></span>50–100K</div>
-                                <div class="legend-item"><span style="background:#bfdbfe"></span>&lt; 50K</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <div class="tab-content" id="tab-actual-content">
 
-                <!-- Bloque 2: Mercado Laboral -->
-                <div class="block-card">
-                    <div class="block-header">
-                        <div class="block-icon-wrap icon-green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                                height="18">
-                                <rect x="2" y="7" width="20" height="14" rx="2" />
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2>Situación del Empleo</h2>
-                            <p>Tasas laborales calculadas sobre la muestra filtrada de la EPHC</p>
-                        </div>
-                    </div>
-                    <div class="block-2col">
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Distribución por Categoría Ocupacional</h3><span class="chart-badge">ocupados</span>
+                        <!-- KPI Strip -->
+                        <div id="sec-kpis" class="scroll-anchor section-block">
+                            <div class="section-block-hdr">
+                                <h2>📊 Indicadores Clave</h2>
+                                <p>Tasas calculadas sobre los registros EPHC actualmente filtrados en la barra lateral.
+                                </p>
                             </div>
-                            <div id="ch-cate-ocupa" class="ch-area"></div>
-                        </div>
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Ocupados vs Desocupados (PEA)</h3>
+                            <div class="kpi-strip">
+                                <div class="kpi-tile tile-blue">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Población PET</div>
+                                        <button class="info-btn"
+                                            data-tip="Población en Edad de Trabajar (15 años y más). Cuando hay múltiples trimestres seleccionados, se muestra el promedio por trimestre (marcado con *).">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-pet">—</div>
+                                    <div class="kpi-tile-sub">personas en muestra</div>
+                                </div>
+                                <div class="kpi-tile tile-green">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Tasa de Ocupación</div>
+                                        <button class="info-btn"
+                                            data-tip="Proporción de la PET que está ocupada. Fórmula: Ocupados / PET × 100.">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-to">—</div>
+                                    <div class="kpi-tile-sub">ocupados / PET</div>
+                                </div>
+                                <div class="kpi-tile tile-red">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Tasa de Desocupación</div>
+                                        <button class="info-btn"
+                                            data-tip="Proporción de la PEA (activos) que está buscando trabajo. Fórmula: Desocupados / (Ocupados + Desocupados) × 100.">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-td">—</div>
+                                    <div class="kpi-tile-sub">desocupados / PEA</div>
+                                </div>
+                                <div class="kpi-tile tile-amber">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Tasa de Participación</div>
+                                        <button class="info-btn"
+                                            data-tip="Tasa de Fuerza de Trabajo (TFT): proporción de la PET que participa activamente (busca o tiene trabajo). Fórmula: PEA / PET × 100.">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-tft">—</div>
+                                    <div class="kpi-tile-sub">PEA / PET (TFT)</div>
+                                </div>
+                                <div class="kpi-tile tile-teal">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Cobertura IPS</div>
+                                        <button class="info-btn"
+                                            data-tip="Porcentaje de ocupados que aportan al Instituto de Previsión Social (IPS). Fórmula: Aporta IPS / Ocupados × 100.">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-ips">—</div>
+                                    <div class="kpi-tile-sub">sobre ocupados</div>
+                                </div>
+                                <div class="kpi-tile tile-purple">
+                                    <div class="kpi-tile-top">
+                                        <div class="kpi-tile-label">Años Prom. Estudio</div>
+                                        <button class="info-btn"
+                                            data-tip="Promedio ponderado por PET de los años de educación formal completados. Calculado como: Σ(años_estudio × personas_PET) / PET total.">ℹ</button>
+                                    </div>
+                                    <div class="kpi-tile-val" id="kpi-educ">—</div>
+                                    <div class="kpi-tile-sub">promedio ponderado</div>
+                                </div>
                             </div>
-                            <div id="ch-ocu-desoc" class="ch-area ch-sm"></div>
                         </div>
-                    </div>
-                    <div class="chart-box map-box">
-                        <div class="chart-box-hdr">
-                            <h3>Mapa de Tasa de Fuerza de Trabajo (TFT) por Departamento</h3><span
-                                class="chart-badge map-badge">%</span>
-                        </div>
-                        <div id="map-laboral" class="map-pane"></div>
-                        <div class="map-legend" id="legend-lab">
-                            <div class="legend-title">TFT (%)</div>
-                            <div class="legend-items">
-                                <div class="legend-item"><span style="background:#065f46"></span>&gt; 70%</div>
-                                <div class="legend-item"><span style="background:#059669"></span>60–70%</div>
-                                <div class="legend-item"><span style="background:#34d399"></span>50–60%</div>
-                                <div class="legend-item"><span style="background:#a7f3d0"></span>&lt; 50%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Bloque 3: Salud / Seguridad Social -->
-                <div class="block-card">
-                    <div class="block-header">
-                        <div class="block-icon-wrap icon-teal">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                                height="18">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2>Seguridad Social y Cobertura</h2>
-                            <p>Aportaciones al IPS y jubilación por categoría ocupacional</p>
-                        </div>
-                    </div>
-                    <div class="block-2col">
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Cobertura IPS y Jubilación por Categoría</h3><span class="chart-badge">% sobre
-                                    ocupados</span>
+                        <!-- Bloque Demografía -->
+                        <div id="sec-demo" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>👥 Estructura de la Población</h2>
+                                    <p>Distribución por tramo de edad y sexo de la Población en Edad de Trabajar (PET)
+                                        según filtros activos.</p>
+                                </div>
                             </div>
-                            <div id="ch-ips-cate" class="ch-area"></div>
-                        </div>
-                        <div class="chart-box">
-                            <div class="chart-box-hdr">
-                                <h3>Cobertura IPS General</h3>
+                            <div class="block-2col">
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Distribución Etaria por Sexo – PET</h3>
+                                        <button class="info-btn"
+                                            data-tip="Pirámide poblacional de doble barra: barras azules (izquierda) = Hombres, barras carmesí (derecha) = Mujeres. Basado en la muestra EPHC con factor de expansión (personas_pet).">ℹ</button>
+                                        <span class="chart-badge">PET ponderada</span>
+                                    </div>
+                                    <div id="ch-edad-sexo" class="ch-area"></div>
+                                </div>
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Top Departamentos – PET</h3>
+                                        <button class="info-btn"
+                                            data-tip="Los 10 departamentos con mayor Población en Edad de Trabajar (PET). Solo se muestran los 10 primeros para mayor claridad visual.">ℹ</button>
+                                        <span class="chart-badge">personas</span>
+                                    </div>
+                                    <div id="ch-dpto-pet" class="ch-area"></div>
+                                </div>
                             </div>
-                            <div id="ch-ips-donut" class="ch-area ch-sm"></div>
+                            <div class="chart-box map-box">
+                                <div class="chart-box-hdr">
+                                    <h3>Mapa de PET por Departamento – Paraguay</h3>
+                                    <button class="info-btn"
+                                        data-tip="Mapa coroplético de Paraguay. El color indica la magnitud de la PET por departamento: más oscuro = mayor población. Pasar el cursor sobre un departamento muestra el valor exacto.">ℹ</button>
+                                    <span class="chart-badge map-badge">Interactivo</span>
+                                </div>
+                                <div id="map-demo" class="map-pane"></div>
+                                <div class="map-legend" id="legend-demo">
+                                    <div class="legend-title">PET:</div>
+                                    <div class="legend-items">
+                                        <div class="legend-item"><span style="background:#1d4ed8"></span>&gt; 300K</div>
+                                        <div class="legend-item"><span style="background:#3b82f6"></span>100–300K</div>
+                                        <div class="legend-item"><span style="background:#93c5fd"></span>50–100K</div>
+                                        <div class="legend-item"><span style="background:#bfdbfe"></span>&lt; 50K</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Bloque 4: Educación -->
-                <div class="block-card">
-                    <div class="block-header">
-                        <div class="block-icon-wrap icon-purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                                height="18">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                            </svg>
+                        <!-- Bloque Empleo -->
+                        <div id="sec-empleo" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-green">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" />
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>💼 Situación del Empleo</h2>
+                                    <p>Distribución de la PEA (activos) por categoría de inserción laboral y mapa de
+                                        Tasa de Fuerza de Trabajo por departamento.</p>
+                                </div>
+                            </div>
+                            <div class="block-2col">
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Ocupados por Categoría Laboral</h3>
+                                        <button class="info-btn"
+                                            data-tip="Distribución de los trabajadores ocupados según su categoría de inserción laboral: Obrero privado, Cuenta propia, Empleador, etc. Basado en la variable 'categocupa' de la EPHC.">ℹ</button>
+                                        <span class="chart-badge">ocupados</span>
+                                    </div>
+                                    <div id="ch-cate-ocupa" class="ch-area"></div>
+                                </div>
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Ocupados vs Desocupados (PEA)</h3>
+                                        <button class="info-btn"
+                                            data-tip="Composición de la Población Económicamente Activa (PEA). La PEA incluye tanto ocupados (tienen trabajo) como desocupados (buscan trabajo activamente).">ℹ</button>
+                                    </div>
+                                    <div id="ch-ocu-desoc" class="ch-area ch-sm"></div>
+                                </div>
+                            </div>
+                            <div class="chart-box map-box">
+                                <div class="chart-box-hdr">
+                                    <h3>Mapa de Tasa de Fuerza de Trabajo (TFT) – Paraguay</h3>
+                                    <button class="info-btn"
+                                        data-tip="TFT = PEA / PET × 100. Indica qué porcentaje de la PET participa activamente en el mercado laboral. Verde oscuro = mayor participación laboral.">ℹ</button>
+                                    <span class="chart-badge map-badge">%</span>
+                                </div>
+                                <div id="map-laboral" class="map-pane"></div>
+                                <div class="map-legend" id="legend-lab">
+                                    <div class="legend-title">TFT (%):</div>
+                                    <div class="legend-items">
+                                        <div class="legend-item"><span style="background:#065f46"></span>&gt; 70%</div>
+                                        <div class="legend-item"><span style="background:#059669"></span>60–70%</div>
+                                        <div class="legend-item"><span style="background:#34d399"></span>50–60%</div>
+                                        <div class="legend-item"><span style="background:#a7f3d0"></span>&lt; 50%</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h2>Nivel Educativo</h2>
-                            <p>Promedio de años de estudio ponderado por tramo de edad</p>
-                        </div>
-                    </div>
-                    <div class="chart-box full-w">
-                        <div class="chart-box-hdr">
-                            <h3>Promedio de Años de Estudio por Tramo de Edad</h3><span class="chart-badge">años
-                                ponderados</span>
-                        </div>
-                        <div id="ch-educ-edad" class="ch-area"></div>
-                    </div>
-                </div>
 
+                        <!-- Bloque Seguridad Social -->
+                        <div id="sec-salud" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-teal">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>🏥 Seguridad Social y Cobertura</h2>
+                                    <p>Tasas de aportación al IPS (salud) y jubilación por categoría ocupacional.</p>
+                                </div>
+                            </div>
+                            <div class="block-2col">
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Cobertura IPS y Jubilación por Categoría</h3>
+                                        <button class="info-btn"
+                                            data-tip="Barras agrupadas: verde = % que aporta al IPS (Instituto de Previsión Social), ámbar = % que aporta a jubilación. Calculado sobre ocupados de cada categoría. El IPS es el principal sistema de seguridad social en Paraguay.">ℹ</button>
+                                        <span class="chart-badge">% sobre ocupados</span>
+                                    </div>
+                                    <div id="ch-ips-cate" class="ch-area"></div>
+                                </div>
+                                <div class="chart-box">
+                                    <div class="chart-box-hdr">
+                                        <h3>Cobertura IPS – Total</h3>
+                                        <button class="info-btn"
+                                            data-tip="Proporción de todos los ocupados filtrados que cotizan al IPS vs. los que no tienen cobertura. Alta informalidad implica baja cobertura IPS.">ℹ</button>
+                                    </div>
+                                    <div id="ch-ips-donut" class="ch-area ch-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque Educación -->
+                        <div id="sec-educ" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-purple">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>📚 Nivel Educativo</h2>
+                                    <p>Promedio de años de instrucción formal por tramo de edad de la PET filtrada.</p>
+                                </div>
+                            </div>
+                            <div class="chart-box full-w">
+                                <div class="chart-box-hdr">
+                                    <h3>Promedio de Años de Estudio por Tramo de Edad</h3>
+                                    <button class="info-btn"
+                                        data-tip="Años promedio de educación completada, calculado como Σ(anios_estudio_pond) / PET, para cada tramo de edad. Valores más altos indican mayor capital humano. La EPHC captura esta variable en el módulo de educación.">ℹ</button>
+                                    <span class="chart-badge">años ponderados</span>
+                                </div>
+                                <div id="ch-educ-edad" class="ch-area"></div>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-content -->
+                </div><!-- /tab-layout -->
             </section>
 
-            <!-- ════════════ TAB 2: EVOLUCIÓN HISTÓRICA ════════════ -->
+            <!-- ════════ TAB 2: EVOLUCIÓN HISTÓRICA ════════ -->
             <section id="tab-historico" class="tab-pane">
-                <div class="subtab-row" id="subtab-hist">
-                    <button class="subtab-btn active" data-subtab="hist-lab">💼 Mercado Laboral</button>
-                    <button class="subtab-btn" data-subtab="hist-salud">🏥 Seguridad Social</button>
-                    <button class="subtab-btn" data-subtab="hist-sml">💰 SML Obreros</button>
-                </div>
+                <div class="tab-layout">
 
-                <div id="hist-lab" class="subtab-pane active">
-                    <div class="chart-box full-w">
-                        <div class="chart-box-hdr">
-                            <h3>Evolución: Tasas Laborales por Trimestre</h3>
-                            <div class="chart-actions">
-                                <button class="btn-dl" onclick="dlChart('ch-hist-lab','tasas_laborales')">⬇ PNG</button>
+                    <!-- Vertical section nav -->
+                    <aside class="section-nav" id="snav-hist">
+                        <p class="snav-title">Series</p>
+                        <a class="snav-link active" href="#sec-hist-lab">💼 Mercado Laboral</a>
+                        <a class="snav-link" href="#sec-hist-salud">🏥 Seg. Social</a>
+                        <a class="snav-link" href="#sec-hist-sml">💰 SML Obreros</a>
+                        <div class="snav-note">
+                            <strong>Nota:</strong> Las series temporales no se filtran por sexo ni edad para mostrar la
+                            tendencia global. Use los filtros de año/trimestre para acotar el período.
+                        </div>
+                    </aside>
+
+                    <div class="tab-content">
+
+                        <div id="sec-hist-lab" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>💼 Tasas Laborales por Trimestre</h2>
+                                    <p>Evolución temporal de las tres tasas clave del mercado de trabajo.</p>
+                                </div>
+                            </div>
+                            <div class="chart-box full-w">
+                                <div class="chart-box-hdr">
+                                    <h3>TFT, Tasa de Ocupación y Tasa de Desocupación</h3>
+                                    <button class="info-btn"
+                                        data-tip="Serie temporal de las tasas laborales calculadas trimestre a trimestre sobre los datos EPHC filtrados. TFT = PEA/PET; TO = Ocupados/PET; TD = Desocupados/PEA. Cada punto representa un trimestre.">ℹ</button>
+                                    <div class="chart-actions">
+                                        <button class="btn-dl"
+                                            onclick="window.dlChart('ch-hist-lab','tasas_laborales')">⬇ PNG</button>
+                                    </div>
+                                </div>
+                                <div id="ch-hist-lab" class="ch-area ch-xl"></div>
                             </div>
                         </div>
-                        <div id="ch-hist-lab" class="ch-area ch-xl"></div>
-                    </div>
-                </div>
 
-                <div id="hist-salud" class="subtab-pane">
-                    <div class="chart-box full-w">
-                        <div class="chart-box-hdr">
-                            <h3>Evolución: Cobertura IPS y Jubilación por Trimestre</h3>
-                            <div class="chart-actions">
-                                <button class="btn-dl" onclick="dlChart('ch-hist-salud','cobertura_social')">⬇
-                                    PNG</button>
+                        <div id="sec-hist-salud" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-teal">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>🏥 Cobertura Social en el Tiempo</h2>
+                                    <p>Evolución de las tasas de aportación al IPS y jubilación por trimestre.</p>
+                                </div>
+                            </div>
+                            <div class="chart-box full-w">
+                                <div class="chart-box-hdr">
+                                    <h3>Cobertura IPS y Jubilación</h3>
+                                    <button class="info-btn"
+                                        data-tip="Series temporales de cobertura social: verde teal = % de ocupados que aportan al IPS; ámbar = % que aportan a jubilación. Valores bajos indican alta informalidad laboral.">ℹ</button>
+                                    <div class="chart-actions">
+                                        <button class="btn-dl"
+                                            onclick="window.dlChart('ch-hist-salud','cobertura_social')">⬇ PNG</button>
+                                    </div>
+                                </div>
+                                <div id="ch-hist-salud" class="ch-area ch-xl"></div>
                             </div>
                         </div>
-                        <div id="ch-hist-salud" class="ch-area ch-xl"></div>
-                    </div>
-                </div>
 
-                <div id="hist-sml" class="subtab-pane">
-                    <div class="chart-box full-w">
-                        <div class="chart-box-hdr">
-                            <h3>Distribución de Obreros Privados vs SML – Serie Trimestral</h3>
-                            <div class="chart-actions">
-                                <button class="btn-dl" onclick="dlChart('ch-hist-sml','sml_historico')">⬇ PNG</button>
+                        <div id="sec-hist-sml" class="scroll-anchor section-block block-card">
+                            <div class="block-header">
+                                <div class="block-icon-wrap icon-green">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        width="18" height="18">
+                                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>💰 Distribución Salarial vs SML</h2>
+                                    <p>Solo aplica a <strong>Obreros Privados</strong> con ingreso declarado en la EPHC.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="chart-box full-w">
+                                <div class="chart-box-hdr">
+                                    <h3>Obreros Privados por Relación al Salario Mínimo Legal (SML)</h3>
+                                    <button class="info-btn"
+                                        data-tip="Barras apiladas al 100% para Obreros Privados. Categorías: rojo = gana menos de 1 SML (infrasalario), ámbar = recibe ~1 SML (±10%), verde = gana más de 1 SML. El SML vigente fue ajustado por año según resoluciones del MTE Paraguay.">ℹ</button>
+                                    <div class="chart-actions">
+                                        <button class="btn-dl" onclick="window.dlChart('ch-hist-sml','sml_historico')">⬇
+                                            PNG</button>
+                                    </div>
+                                </div>
+                                <div id="ch-hist-sml" class="ch-area ch-xl"></div>
                             </div>
                         </div>
-                        <div id="ch-hist-sml" class="ch-area ch-xl"></div>
-                    </div>
-                </div>
+
+                    </div><!-- /tab-content -->
+                </div><!-- /tab-layout -->
             </section>
 
-            <!-- ════════════ TAB 3: MARCO CONCEPTUAL ════════════ -->
+            <!-- ════════ TAB 3: MARCO CONCEPTUAL ════════ -->
             <section id="tab-metodologia" class="tab-pane">
                 <div class="met-layout">
                     <aside class="met-nav">
-                        <p class="met-nav-title">Contenido</p>
+                        <p class="met-nav-title">Contenido del documento</p>
                         <div id="met-toc"></div>
                     </aside>
                     <article class="met-body">
