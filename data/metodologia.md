@@ -196,5 +196,5 @@ donde típicamente se usa 95% (z = 1,96). :contentReference[oaicite:39]{index=39
 | Empleo, desocupación, subocupación, inactividad, TFT/TO/TD/TS/TCSD | Trimestral (EPHC) :contentReference[oaicite:40]{index=40} |
 | Ingresos (ocupación principal y demás fuentes) | Captación mensual, reporte por trimestre según publicación EPHC :contentReference[oaicite:41]{index=41} |
 
-**Fecha de actualización sugerida:** “Último trimestre publicado por el INE” (por ejemplo, **4º trimestre 2025** cuando el tablero se alinea con este anexo metodológico). :contentReference[oaicite:42]{index=42}
+**Fecha de actualización sugerida:** “Último trimestre publicado por el INE” (por ejemplo, **4º trimestre 2025** cuando el tablero se alinea con este anexo metodológico).
 
