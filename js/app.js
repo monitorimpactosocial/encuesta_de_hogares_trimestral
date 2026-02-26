@@ -1,95 +1,57 @@
-/* ============================================================
-   TABLERO DE INDICADORES DEPARTAMENTALES
-   app.js — Lógica principal
-============================================================ */
-
 "use strict";
 
-// ─── GLOBAL STATE ────────────────────────────────────────────
-let rawData = [];   // All rows from CSV
-let years = [];   // Sorted years array
-let activeYear = null; // Currently selected year
+/* ════════════════════════════════════════════════════════════
+   TABLERO EPHC — app.js  v2
+   JSON fields: sexo='Hombres'/'Mujeres', tramo_edad='15-24'...,
+   departamento, categocupa, trimestre_desc='2024Trim3',
+   anio (numeric), trimestre_num (1-4)
+   Numeric: personas_pet, ocupados, desocupados, aporta_ips,
+            aporta_jub, anios_estudio_pond
+════════════════════════════════════════════════════════════ */
 
-// Chart color palettes (accessible / colorblind-safe)
-const PALETTE = {
-    blue: '#2563EB',
-    green: '#16A34A',
-    teal: '#0D9488',
-    amber: '#D97706',
-    red: '#DC2626',
-    purple: '#7C3AED',
-    slate: '#475569',
-    orange: '#EA580C',
-    pink: '#DB2777',
-};
+// ── Globals ──────────────────────────────────────────────────
+let cf, dimTrimAnio, dimTrimNum, dimSexo, dimEdad, dimDpto, dimCate;
+let geojsonData = null;
+let maps = {};
+let activeLayers = {};
 
-// Colors for multi-line historical series
-const LINE_COLORS = ['#2563EB', '#16A34A', '#D97706', '#DC2626', '#7C3AED', '#0D9488', '#EA580C'];
-
-// Plotly base layout shared by all charts
-const BASE_LAYOUT = {
-    paper_bgcolor: 'white',
-    plot_bgcolor: 'white',
-    font: { family: "'Inter', system-ui, sans-serif", size: 12, color: '#475569' },
-    margin: { l: 50, r: 20, t: 10, b: 50 },
-    showlegend: true,
-    legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
-};
-
-const PLOTLY_CONFIG = {
-    responsive: true,
-    displayModeBar: true,
+const PLY_CFG = {
+    responsive: true, displayModeBar: true,
     modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
     toImageButtonOptions: { format: 'png', scale: 2 }
 };
-
-// ─── HISTORICAL SERIES CONFIG ────────────────────────────────
-const SERIES_CONFIG = {
-    demo: [
-        { col: 'tasa_dependencia_total', label: 'Dep. Total (%)', unit: '%' },
-        { col: 'tasa_dependencia_adultos', label: 'Dep. Adultos Mayores (%)', unit: '%' },
-        { col: 'tasa_dependencia_jovenes', label: 'Dep. Jóvenes (%)', unit: '%' },
-        { col: 'indice_envejecimiento', label: 'Índice Envejecimiento (%)', unit: '%' },
-        { col: 'poblacion_total', label: 'Población Total', unit: 'hab.' },
-    ],
-    lab: [
-        { col: 'tgp', label: 'TGP (%)', unit: '%' },
-        { col: 'tasa_ocupacion', label: 'Tasa Ocupación (%)', unit: '%' },
-        { col: 'tasa_desempleo', label: 'Tasa Desempleo (%)', unit: '%' },
-        { col: 'informalidad', label: 'Informalidad (%)', unit: '%' },
-        { col: 'subempleo', label: 'Subempleo (%)', unit: '%' },
-    ],
-    social: [
-        { col: 'cobertura_salud_contributivo', label: 'Salud Contributivo (%)', unit: '%' },
-        { col: 'cobertura_salud_subsidiado', label: 'Salud Subsidiado (%)', unit: '%' },
-        { col: 'mortalidad_infantil', label: 'Mortalidad Infantil', unit: 'x1000 NV' },
-        { col: 'esperanza_vida', label: 'Esperanza de Vida', unit: 'años' },
-        { col: 'tasa_analfabetismo', label: 'Analfabetismo (%)', unit: '%' },
-        { col: 'cobertura_neta_secundaria', label: 'Cob. Neta Secundaria (%)', unit: '%' },
-    ]
+const BASE = {
+    paper_bgcolor: 'white', plot_bgcolor: 'white',
+    font: { family: "'Inter',system-ui,sans-serif", size: 12, color: '#475569' },
+    margin: { l: 52, r: 16, t: 10, b: 48 },
+    showlegend: true,
+    legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
 };
+const C = {
+    blue: '#2563EB', green: '#16A34A', red: '#DC2626',
+    amber: '#D97706', teal: '#0D9488', purple: '#7C3AED'
+};
+const PAL = ['#2563EB', '#0D9488', '#16A34A', '#D97706', '#7C3AED', '#DC2626', '#0284C7', '#EA580C'];
 
-// Track which series are active in each historical tab
-const activeToggles = { demo: new Set(), lab: new Set(), social: new Set() };
-
-// ─── INIT ────────────────────────────────────────────────────
+// ── App Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initMainTabs();
+    initTabs();
     initSubTabs();
-    loadCSV();
+    initSidebarToggle();
+    loadData();
     loadMetodologia();
 });
 
-// ─── TAB NAVIGATION ──────────────────────────────────────────
-function initMainTabs() {
+// ── Tabs ──────────────────────────────────────────────────────
+function initTabs() {
     document.querySelectorAll('.main-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(btn.dataset.tab).classList.add('active');
-            // Trigger Plotly resize for charts in the newly visible tab
             window.dispatchEvent(new Event('resize'));
+            Object.values(maps).forEach(m => { try { m.invalidateSize(); } catch (e) { } });
         });
     });
 }
@@ -97,9 +59,9 @@ function initMainTabs() {
 function initSubTabs() {
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const parent = btn.closest('.tab-panel');
+            const parent = btn.closest('.tab-pane');
             parent.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
-            parent.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+            parent.querySelectorAll('.subtab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(btn.dataset.subtab).classList.add('active');
             window.dispatchEvent(new Event('resize'));
@@ -107,441 +69,520 @@ function initSubTabs() {
     });
 }
 
-// ─── CSV LOADING ─────────────────────────────────────────────
-function loadCSV() {
-    Papa.parse('data/datos_departamento.csv', {
-        download: true,
-        header: true,
-        dynamicTyping: true,
-        skipEmptyLines: true,
-        complete: (result) => {
-            if (!result.data || result.data.length === 0) {
-                showError('No se encontraron datos en el archivo CSV.');
-                return;
-            }
-            rawData = result.data;
-            years = [...new Set(rawData.map(r => r.año))].sort((a, b) => a - b);
-            activeYear = years[years.length - 1]; // Default: most recent year
-
-            populateYearSelector();
-            initHistoricalToggles();
-            renderCurrentYear();
-        },
-        error: (err) => showError('Error al cargar datos: ' + err.message)
-    });
-}
-
-function getRowForYear(year) {
-    return rawData.find(r => r.año === year) || null;
-}
-
-// ─── YEAR SELECTOR ───────────────────────────────────────────
-function populateYearSelector() {
-    const sel = document.getElementById('year-select');
-    // newest first for usability
-    [...years].reverse().forEach(y => {
-        const opt = document.createElement('option');
-        opt.value = y; opt.textContent = y;
-        if (y === activeYear) opt.selected = true;
-        sel.appendChild(opt);
-    });
-    sel.addEventListener('change', () => {
-        activeYear = parseInt(sel.value);
-        document.getElementById('header-year-badge').textContent = `Año ${activeYear}`;
-        document.getElementById('filter-info').textContent =
-            `Mostrando datos del año ${activeYear}. ` +
-            (activeYear === years[years.length - 1] ? '(Más reciente)' : '');
-        renderCurrentYear();
-    });
-}
-
-// ─── MAIN RENDER ─────────────────────────────────────────────
-function renderCurrentYear() {
-    const row = getRowForYear(activeYear);
-    if (!row) { showError(`Sin datos para el año ${activeYear}.`); return; }
-
-    renderDemografia(row);
-    renderLaboral(row);
-    renderSalud(row);
-    renderEducacion(row);
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────
-const fmt = (n, dec = 1) => n != null ? n.toFixed(dec) + ' %' : 'N/D';
-const fmtN = (n) => n != null ? new Intl.NumberFormat('es-CO').format(Math.round(n)) : 'N/D';
-const fmtPesos = (n) => n != null ? '$ ' + new Intl.NumberFormat('es-CO').format(Math.round(n)) : 'N/D';
-
-function setText(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-}
-
-// ─── BLOQUE 1: DEMOGRAFÍA ────────────────────────────────────
-function renderDemografia(row) {
-    setText('kpi-pob-total', fmtN(row.poblacion_total));
-    setText('kpi-dep-total', fmt(row.tasa_dependencia_total));
-    setText('kpi-dep-adultos', fmt(row.tasa_dependencia_adultos));
-    setText('kpi-dep-jovenes', fmt(row.tasa_dependencia_jovenes));
-    setText('kpi-envejecimiento', fmt(row.indice_envejecimiento));
-
-    buildPiramide(row);
-}
-
-function buildPiramide(row) {
-    const grupos = ['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39',
-        '40-44', '45-49', '50-54', '55-59', '60-64', '65+'];
-    const hKeys = ['pob_0_4h', 'pob_5_9h', 'pob_10_14h', 'pob_15_19h', 'pob_20_24h', 'pob_25_29h',
-        'pob_30_34h', 'pob_35_39h', 'pob_40_44h', 'pob_45_49h', 'pob_50_54h', 'pob_55_59h',
-        'pob_60_64h', 'pob_65_mas_h'];
-    const mKeys = ['pob_0_4m', 'pob_5_9m', 'pob_10_14m', 'pob_15_19m', 'pob_20_24m', 'pob_25_29m',
-        'pob_30_34m', 'pob_35_39m', 'pob_40_44m', 'pob_45_49m', 'pob_50_54m', 'pob_55_59m',
-        'pob_60_64m', 'pob_65_mas_m'];
-
-    const hVal = hKeys.map(k => -(row[k] || 0));  // negative = left side
-    const mVal = mKeys.map(k => (row[k] || 0));
-
-    const traces = [
-        {
-            x: hVal, y: grupos, type: 'bar', orientation: 'h',
-            name: 'Hombres',
-            marker: { color: PALETTE.blue },
-            hovertemplate: '%{y}: %{customdata:,.0f} hombres<extra></extra>',
-            customdata: hVal.map(v => Math.abs(v))
-        },
-        {
-            x: mVal, y: grupos, type: 'bar', orientation: 'h',
-            name: 'Mujeres',
-            marker: { color: PALETTE.pink },
-            hovertemplate: '%{y}: %{x:,.0f} mujeres<extra></extra>'
+function initSidebarToggle() {
+    const btn = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('app-main');
+    btn.addEventListener('click', () => {
+        if (window.innerWidth >= 900) {
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('full');
+        } else {
+            sidebar.classList.toggle('shown');
         }
-    ];
-
-    const layout = {
-        ...BASE_LAYOUT,
-        barmode: 'relative',
-        xaxis: {
-            title: 'Personas', tickformat: ',.0f',
-            tickvals: [-20000, -10000, 0, 10000, 20000],
-            ticktext: ['20K', '10K', '0', '10K', '20K'],
-            gridcolor: '#F1F5F9'
-        },
-        yaxis: { title: '', gridcolor: '#F1F5F9' },
-        margin: { l: 50, r: 20, t: 10, b: 40 },
-        legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
-    };
-
-    Plotly.react('chart-piramide', traces, layout, PLOTLY_CONFIG);
+    });
 }
 
-// ─── BLOQUE 2: MERCADO LABORAL ───────────────────────────────
-function renderLaboral(row) {
-    setText('kpi-tgp', fmt(row.tgp, 1));
-    setText('kpi-to', fmt(row.tasa_ocupacion, 1));
-    setText('kpi-td', fmt(row.tasa_desempleo, 1));
-    setText('kpi-informal', fmt(row.informalidad, 1));
-    setText('kpi-subempleo', fmt(row.subempleo, 1));
-    setText('kpi-ingreso', fmtPesos(row.ingreso_promedio));
+// ── Data Loading ──────────────────────────────────────────────
+async function loadData() {
+    setStatus('Cargando datos EPHC…');
+    try {
+        const [dataResp, geoResp] = await Promise.all([
+            fetch('datos_consolidados.json'),
+            fetch('departamentos.geojson')
+        ]);
+        if (!dataResp.ok) throw new Error('No se pudo cargar datos_consolidados.json');
+        const raw = await dataResp.json();
+        geojsonData = await geoResp.json();
 
-    buildRamas(row);
+        initCrossfilter(raw);
+        populateFilterControls();
+        initMaps();
+        updateDashboard();
+    } catch (e) {
+        setStatus('Error: ' + e.message);
+        console.error(e);
+    }
 }
 
-function buildRamas(row) {
-    const ramas = ['Agricultura', 'Comercio', 'Manufactura', 'Construcción', 'Servicios', 'Transporte', 'Otros'];
-    const cols = ['ocup_agricultura', 'ocup_comercio', 'ocup_manufactura', 'ocup_construccion',
-        'ocup_servicios', 'ocup_transporte', 'ocup_otros'];
-    const vals = cols.map(c => row[c] || 0);
-
-    // Sort descending for readability
-    const combined = ramas.map((r, i) => ({ r, v: vals[i] })).sort((a, b) => a.v - b.v);
-
-    const traces = [{
-        x: combined.map(d => d.v),
-        y: combined.map(d => d.r),
-        type: 'bar',
-        orientation: 'h',
-        marker: {
-            color: combined.map(d => d.v),
-            colorscale: [[0, '#EFF6FF'], [1, PALETTE.blue]],
-            showscale: false
-        },
-        hovertemplate: '<b>%{y}</b><br>%{x:.1f}%<extra></extra>',
-        text: combined.map(d => d.v.toFixed(1) + '%'),
-        textposition: 'outside'
-    }];
-
-    const layout = {
-        ...BASE_LAYOUT,
-        showlegend: false,
-        xaxis: { title: '% de los ocupados', range: [0, 35], gridcolor: '#F1F5F9' },
-        yaxis: { title: '', automargin: true }
-    };
-
-    Plotly.react('chart-ramas', traces, layout, PLOTLY_CONFIG);
+function initCrossfilter(data) {
+    cf = crossfilter(data);
+    // Each row already has 'anio' numeric and 'trimestre_num'
+    dimTrimAnio = cf.dimension(d => d.anio != null ? String(d.anio) : 'NR');
+    dimTrimNum = cf.dimension(d => d.trimestre_num != null ? String(d.trimestre_num) : 'NR');
+    dimSexo = cf.dimension(d => d.sexo || 'NR');          // 'Hombres'|'Mujeres'
+    dimEdad = cf.dimension(d => d.tramo_edad || 'NR');    // '15-24' etc.
+    dimDpto = cf.dimension(d => d.departamento || 'NR');  // dept name
+    dimCate = cf.dimension(d => d.categocupa || 'NR');
 }
 
-// ─── BLOQUE 3: SALUD ─────────────────────────────────────────
-function renderSalud(row) {
-    const contr = row.cobertura_salud_contributivo || 0;
-    const subsi = row.cobertura_salud_subsidiado || 0;
-    const excep = row.cobertura_salud_excepcion || 0;
-    const sinAs = row.sin_aseguramiento || 0;
-    const total = (100 - sinAs).toFixed(1);
+// ── Populate Filter Controls ──────────────────────────────────
+function populateFilterControls() {
+    const all = cf.all();
 
-    setText('kpi-cobertura-salud', total + ' %');
-    setText('kpi-mortalidad', (row.mortalidad_infantil || '—') + (row.mortalidad_infantil ? ' ‰' : ''));
-    setText('kpi-natalidad', fmt(row.tasa_natalidad, 1));
-    setText('kpi-esperanza', (row.esperanza_vida || '—') + (row.esperanza_vida ? ' años' : ''));
+    // Years
+    const anios = [...new Set(all.map(d => d.anio).filter(x => x != null))].sort();
+    const selAnio = document.getElementById('f-anio');
+    anios.forEach(a => selAnio.add(new Option(a, String(a))));
 
-    buildAseguramiento(contr, subsi, excep, sinAs);
-}
+    // Trimestres
+    const trimNums = [...new Set(all.map(d => d.trimestre_num).filter(x => x != null))].sort();
+    const selTrim = document.getElementById('f-trimestre');
+    const trimLabels = { 1: 'Trim 1 (Ene-Mar)', 2: 'Trim 2 (Abr-Jun)', 3: 'Trim 3 (Jul-Sep)', 4: 'Trim 4 (Oct-Dic)' };
+    trimNums.forEach(n => selTrim.add(new Option(trimLabels[n] || 'Trim ' + n, String(n))));
 
-function buildAseguramiento(contr, subsi, excep, sinAs) {
-    const traces = [{
-        values: [contr, subsi, excep, sinAs],
-        labels: ['Contributivo', 'Subsidiado', 'Excepción', 'Sin asegurar'],
-        type: 'pie',
-        hole: 0.52,
-        marker: {
-            colors: [PALETTE.blue, PALETTE.teal, PALETTE.amber, '#CBD5E1'],
-            line: { color: 'white', width: 2 }
-        },
-        hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<extra></extra>',
-        textinfo: 'label+percent',
-        textposition: 'outside',
-        pull: [0, 0, 0, 0.04]
-    }];
+    // Departamento
+    const dptos = [...new Set(all.map(d => d.departamento).filter(x => x && x !== 'NR'))].sort();
+    const selDpto = document.getElementById('f-dpto');
+    dptos.forEach(d => selDpto.add(new Option(d, d)));
 
-    const layout = {
-        ...BASE_LAYOUT,
-        showlegend: false,
-        margin: { l: 40, r: 40, t: 20, b: 20 }
-    };
+    // Categoría Ocupacional
+    const cates = [...new Set(all.map(d => d.categocupa).filter(x => x && x !== 'NR'))].sort();
+    const selCate = document.getElementById('f-cate');
+    cates.forEach(c => selCate.add(new Option(c, c)));
 
-    Plotly.react('chart-aseguramiento', traces, layout, PLOTLY_CONFIG);
-}
-
-// ─── BLOQUE 4: EDUCACIÓN ─────────────────────────────────────
-function renderEducacion(row) {
-    setText('kpi-analfabetismo', fmt(row.tasa_analfabetismo, 1));
-    buildEducNivel(row);
-    buildCoberturaEduc(row);
-}
-
-function buildEducNivel(row) {
-    const niveles = ['Sin escolaridad', 'Primaria', 'Secundaria', 'Media', 'Superior'];
-    const cols = ['educ_ninguno', 'educ_primaria', 'educ_secundaria', 'educ_media', 'educ_superior'];
-    const colors = ['#CBD5E1', PALETTE.teal, PALETTE.blue, PALETTE.purple, PALETTE.green];
-
-    const total = cols.reduce((s, c) => s + (row[c] || 0), 0);
-
-    const traces = cols.map((c, i) => ({
-        y: [activeYear.toString()],
-        x: [(row[c] / total * 100)],
-        name: niveles[i],
-        type: 'bar',
-        orientation: 'h',
-        marker: { color: colors[i] },
-        hovertemplate: `<b>${niveles[i]}</b><br>%{x:.1f}%<extra></extra>`,
-        text: [(row[c] / total * 100).toFixed(1) + '%'],
-        textposition: 'inside',
-        insidetextanchor: 'middle',
-        textfont: { color: 'white', size: 11 }
-    }));
-
-    const layout = {
-        ...BASE_LAYOUT,
-        barmode: 'stack',
-        showlegend: true,
-        xaxis: { title: '% de la población de 15+ años', gridcolor: '#F1F5F9' },
-        yaxis: { title: '' },
-        margin: { l: 20, r: 20, t: 10, b: 40 }
-    };
-
-    Plotly.react('chart-educacion-nivel', traces, layout, PLOTLY_CONFIG);
-}
-
-function buildCoberturaEduc(row) {
-    const niveles = ['Primaria', 'Secundaria', 'Media'];
-    const netaCols = ['cobertura_neta_primaria', 'cobertura_neta_secundaria', 'cobertura_neta_media'];
-    const brutaCols = ['cobertura_bruta_primaria', 'cobertura_bruta_secundaria', 'cobertura_bruta_media'];
-
-    const traces = [
-        {
-            x: niveles,
-            y: netaCols.map(c => row[c] || 0),
-            name: 'Cobertura Neta',
-            type: 'bar',
-            marker: { color: PALETTE.blue },
-            hovertemplate: '<b>%{x}</b> Neta<br>%{y:.1f}%<extra></extra>',
-            text: netaCols.map(c => (row[c] || 0).toFixed(1) + '%'),
-            textposition: 'outside'
-        },
-        {
-            x: niveles,
-            y: brutaCols.map(c => row[c] || 0),
-            name: 'Cobertura Bruta',
-            type: 'bar',
-            marker: { color: PALETTE.teal },
-            hovertemplate: '<b>%{x}</b> Bruta<br>%{y:.1f}%<extra></extra>',
-            text: brutaCols.map(c => (row[c] || 0).toFixed(1) + '%'),
-            textposition: 'outside'
-        }
-    ];
-
-    const layout = {
-        ...BASE_LAYOUT,
-        barmode: 'group',
-        xaxis: { title: '' },
-        yaxis: { title: '% de cobertura', gridcolor: '#F1F5F9', range: [0, 115] }
-    };
-
-    Plotly.react('chart-cobertura-educ', traces, layout, PLOTLY_CONFIG);
-}
-
-// ─── EVOLUCIÓN HISTÓRICA ─────────────────────────────────────
-function initHistoricalToggles() {
-    Object.entries(SERIES_CONFIG).forEach(([group, series]) => {
-        const container = document.getElementById(`toggles-${group}`);
-        series.forEach((s, i) => {
-            // Default: first 3 series on for each group
-            if (i < 3) activeToggles[group].add(s.col);
-
-            const btn = document.createElement('button');
-            btn.className = 'ind-toggle' + (i < 3 ? ' on' : '');
-            btn.dataset.col = s.col;
-            btn.dataset.group = group;
-            const dot = document.createElement('span');
-            dot.className = 'toggle-dot';
-            dot.style.color = LINE_COLORS[i % LINE_COLORS.length];
-            btn.appendChild(dot);
-            btn.appendChild(document.createTextNode(s.label));
-
-            btn.addEventListener('click', () => {
-                if (activeToggles[group].has(s.col)) {
-                    activeToggles[group].delete(s.col);
-                    btn.classList.remove('on');
-                } else {
-                    activeToggles[group].add(s.col);
-                    btn.classList.add('on');
-                }
-                buildHistoricalChart(group);
-            });
-
-            container.appendChild(btn);
+    // Events
+    selAnio.addEventListener('change', applyFilters);
+    selTrim.addEventListener('change', applyFilters);
+    document.querySelectorAll('#f-sexo .t-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#f-sexo .t-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
         });
+    });
+    document.querySelectorAll('#f-edad .t-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#f-edad .t-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        });
+    });
+    selDpto.addEventListener('change', applyFilters);
+    selCate.addEventListener('change', applyFilters);
+    document.getElementById('btn-reset').addEventListener('click', resetFilters);
+}
 
-        // Initial chart
-        buildHistoricalChart(group);
+function applyFilters() {
+    const anio = document.getElementById('f-anio').value;
+    const trim = document.getElementById('f-trimestre').value;
+    const sexo = document.querySelector('#f-sexo .t-btn.active')?.dataset.val || 'ALL';
+    const edad = document.querySelector('#f-edad .t-chip.active')?.dataset.val || 'ALL';
+    const dpto = document.getElementById('f-dpto').value;
+    const cate = document.getElementById('f-cate').value;
+
+    dimTrimAnio.filterFunction(d => anio === 'ALL' || d === anio);
+    dimTrimNum.filterFunction(d => trim === 'ALL' || d === trim);
+    dimSexo.filterFunction(d => sexo === 'ALL' || d === sexo);    // 'Hombres' or 'Mujeres'
+    dimEdad.filterFunction(d => edad === 'ALL' || d === edad);
+    dimDpto.filterFunction(d => dpto === 'ALL' || d === dpto);
+    dimCate.filterFunction(d => cate === 'ALL' || d === cate);
+
+    updateDashboard();
+}
+
+function resetFilters() {
+    dimTrimAnio.filterAll(); dimTrimNum.filterAll(); dimSexo.filterAll();
+    dimEdad.filterAll(); dimDpto.filterAll(); dimCate.filterAll();
+    document.getElementById('f-anio').value = 'ALL';
+    document.getElementById('f-trimestre').value = 'ALL';
+    document.getElementById('f-dpto').value = 'ALL';
+    document.getElementById('f-cate').value = 'ALL';
+    document.querySelectorAll('#f-sexo .t-btn, #f-edad .t-chip').forEach(b => b.classList.remove('active'));
+    const allS = document.querySelector('#f-sexo .t-btn[data-val="ALL"]');
+    const allE = document.querySelector('#f-edad .t-chip[data-val="ALL"]');
+    if (allS) allS.classList.add('active');
+    if (allE) allE.classList.add('active');
+    updateDashboard();
+}
+
+// ── Core Update ───────────────────────────────────────────────
+function updateDashboard() {
+    const rows = dimDpto.top(Infinity);  // all filtered rows
+
+    let totalPET = 0, totalOcu = 0, totalDes = 0;
+    let totalIPS = 0, totalJub = 0, totalAnios = 0;
+
+    const mapEdadH = {}, mapEdadM = {};
+    const mapDeptoPET = {}, mapDeptoPEA = {};
+    const mapCateOcu = {}, mapCateIPS = {}, mapCateJub = {};
+    const mapTrimLab = {}, mapTrimSalud = {}, mapTrimSML = {};
+    const trimSet = new Set();
+
+    rows.forEach(d => {
+        const pet = +(d.personas_pet || 0);
+        const ocu = +(d.ocupados || 0);
+        const des = +(d.desocupados || 0);
+        const ips = +(d.aporta_ips || 0);
+        const jub = +(d.aporta_jub || 0);
+        const anios = +(d.anios_estudio_pond || 0);  // correct field
+        const cate = d.categocupa;
+        const dpto = d.departamento;                // correct field
+        const sexo = d.sexo;                        // 'Hombres' or 'Mujeres'
+        const edad = d.tramo_edad;                  // correct field
+        const trim = d.trimestre_desc;              // '2024Trim3'
+
+        totalPET += pet;
+        totalOcu += ocu;
+        totalDes += des;
+        totalIPS += ips;
+        totalJub += jub;
+        totalAnios += anios;
+        if (trim) trimSet.add(trim);
+
+        // Age pyramid by sex — field 'sexo' has 'Hombres'|'Mujeres'
+        if (edad && edad !== 'NR') {
+            if (sexo === 'Hombres') mapEdadH[edad] = (mapEdadH[edad] || 0) + pet;
+            if (sexo === 'Mujeres') mapEdadM[edad] = (mapEdadM[edad] || 0) + pet;
+        }
+
+        // Departamento aggregation
+        if (dpto && dpto !== 'NR') {
+            mapDeptoPET[dpto] = (mapDeptoPET[dpto] || 0) + pet;
+            if (!mapDeptoPEA[dpto]) mapDeptoPEA[dpto] = { pet: 0, pea: 0 };
+            mapDeptoPEA[dpto].pet += pet;
+            mapDeptoPEA[dpto].pea += ocu + des;
+        }
+
+        // Category occupational
+        if (cate && cate !== 'NR') {
+            mapCateOcu[cate] = (mapCateOcu[cate] || 0) + ocu;
+            mapCateIPS[cate] = (mapCateIPS[cate] || 0) + ips;
+            mapCateJub[cate] = (mapCateJub[cate] || 0) + jub;
+        }
+
+        // Historical by trimestre
+        if (trim && trim !== 'NR') {
+            if (!mapTrimLab[trim]) mapTrimLab[trim] = { pet: 0, ocu: 0, des: 0 };
+            mapTrimLab[trim].pet += pet;
+            mapTrimLab[trim].ocu += ocu;
+            mapTrimLab[trim].des += des;
+
+            if (!mapTrimSalud[trim]) mapTrimSalud[trim] = { ocu: 0, ips: 0, jub: 0 };
+            mapTrimSalud[trim].ocu += ocu;
+            mapTrimSalud[trim].ips += ips;
+            mapTrimSalud[trim].jub += jub;
+
+            if (cate === 'Obrero privado' && d.sml_cat && d.sml_cat !== 'NR') {
+                if (!mapTrimSML[trim]) mapTrimSML[trim] = { 'Menos de 1 SML': 0, '1 SML': 0, 'Más de 1 SML': 0 };
+                mapTrimSML[trim][d.sml_cat] = (mapTrimSML[trim][d.sml_cat] || 0) + ocu;
+            }
+        }
+    });
+
+    const PEA = totalOcu + totalDes;
+    // If multiple trimestres are selected, show per-trimestre average for PET
+    const nT = trimSet.size || 1;
+    const petDisplay = nT > 1 ? totalPET / nT : totalPET;
+
+    // ── KPIs ──
+    setText('kpi-pet', fmtN(petDisplay) + (nT > 1 ? '*' : ''));
+    setText('kpi-to', totalPET > 0 ? pct(totalOcu / totalPET) : '—');
+    setText('kpi-td', PEA > 0 ? pct(totalDes / PEA) : '—');
+    setText('kpi-tft', totalPET > 0 ? pct(PEA / totalPET) : '—');
+    setText('kpi-ips', totalOcu > 0 ? pct(totalIPS / totalOcu) : '—');
+    setText('kpi-educ', totalPET > 0 ? (totalAnios / totalPET).toFixed(1) + ' años' : '—');
+
+    const anioSel = document.getElementById('f-anio').value;
+    const trimSel = document.getElementById('f-trimestre').value;
+    const trimLabels = { 1: 'Trim 1', 2: 'Trim 2', 3: 'Trim 3', 4: 'Trim 4' };
+    setStatus(
+        `${rows.length.toLocaleString('es-PY')} registros — ` +
+        (anioSel === 'ALL' ? 'Todos los años' : anioSel) + ' ' +
+        (trimSel === 'ALL' ? '(todos los trimestres)' : trimLabels[trimSel] || '') +
+        (nT > 1 ? ` — *PET promedio de ${nT} trimestres` : '')
+    );
+
+    // ── Charts Tab 1 ──
+    buildEdadSexo(mapEdadH, mapEdadM);
+    buildDptoPET(mapDeptoPET);
+    buildCateOcu(mapCateOcu);
+    buildOcuDesocDonut(totalOcu, totalDes);
+    buildIPSCate(mapCateOcu, mapCateIPS, mapCateJub);
+    buildIPSDonut(totalIPS, totalOcu);
+    buildEducEdad(rows);
+    // ── Maps ──
+    updateMaps(mapDeptoPET, mapDeptoPEA);
+    // ── Historical ──
+    buildHistLab(mapTrimLab);
+    buildHistSalud(mapTrimSalud);
+    buildHistSML(mapTrimSML);
+}
+
+// ── Chart Builders ────────────────────────────────────────────
+function buildEdadSexo(edadH, edadM) {
+    const grupos = ['15-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+    const h = grupos.map(g => edadH[g] || 0);
+    const m = grupos.map(g => edadM[g] || 0);
+    const maxVal = Math.max(...h, ...m, 1);
+    Plotly.react('ch-edad-sexo', [
+        {
+            x: h.map(v => -v), y: grupos, type: 'bar', orientation: 'h', name: 'Hombres',
+            marker: { color: C.blue }, customdata: h,
+            hovertemplate: '<b>%{y}</b>: %{customdata:,.0f}<extra>Hombres</extra>'
+        },
+        {
+            x: m, y: grupos, type: 'bar', orientation: 'h', name: 'Mujeres',
+            marker: { color: '#DB2777' },
+            hovertemplate: '<b>%{y}</b>: %{x:,.0f}<extra>Mujeres</extra>'
+        }
+    ], {
+        ...BASE, barmode: 'relative',
+        xaxis: {
+            gridcolor: '#F1F5F9', tickformat: ',.0f',
+            tickvals: [-maxVal, -maxVal / 2, 0, maxVal / 2, maxVal].map(Math.round),
+            ticktext: [fmtN(maxVal), fmtN(maxVal / 2), '0', fmtN(maxVal / 2), fmtN(maxVal)]
+        },
+        yaxis: { gridcolor: '#F1F5F9' }
+    }, PLY_CFG);
+}
+
+function buildDptoPET(mapDpto) {
+    const sorted = Object.entries(mapDpto).sort((a, b) => a[1] - b[1]).slice(-10);
+    Plotly.react('ch-dpto-pet', [{
+        x: sorted.map(d => d[1]), y: sorted.map(d => d[0]),
+        type: 'bar', orientation: 'h',
+        marker: { color: sorted.map(d => d[1]), colorscale: [[0, '#EFF6FF'], [1, C.blue]], showscale: false },
+        hovertemplate: '<b>%{y}</b><br>PET: %{x:,.0f}<extra></extra>',
+        text: sorted.map(d => fmtN(d[1])), textposition: 'outside'
+    }], {
+        ...BASE, showlegend: false,
+        xaxis: { gridcolor: '#F1F5F9' }, yaxis: { automargin: true, tickfont: { size: 11 } }
+    }, PLY_CFG);
+}
+
+function buildCateOcu(mapCate) {
+    const cates = Object.entries(mapCate).sort((a, b) => a[1] - b[1]);
+    Plotly.react('ch-cate-ocupa', [{
+        x: cates.map(d => d[1]), y: cates.map(d => d[0]),
+        type: 'bar', orientation: 'h',
+        marker: { color: cates.map((_, i) => PAL[i % PAL.length]) },
+        hovertemplate: '<b>%{y}</b><br>%{x:,.0f} ocupados<extra></extra>',
+        text: cates.map(d => fmtN(d[1])), textposition: 'outside'
+    }], {
+        ...BASE, showlegend: false,
+        xaxis: { gridcolor: '#F1F5F9' }, yaxis: { automargin: true, tickfont: { size: 10 } },
+        margin: { l: 120, r: 60, t: 10, b: 40 }
+    }, PLY_CFG);
+}
+
+function buildOcuDesocDonut(ocu, des) {
+    Plotly.react('ch-ocu-desoc', [{
+        values: [ocu, des], labels: ['Ocupados', 'Desocupados'],
+        type: 'pie', hole: 0.55,
+        marker: { colors: [C.green, C.red], line: { color: 'white', width: 2 } },
+        hovertemplate: '<b>%{label}</b>: %{value:,.0f}<extra></extra>',
+        textinfo: 'label+percent', textposition: 'outside'
+    }], { ...BASE, showlegend: false, margin: { l: 20, r: 20, t: 20, b: 20 } }, PLY_CFG);
+}
+
+function buildIPSCate(mapCate, mapIPS, mapJub) {
+    const cates = Object.keys(mapCate).filter(c => mapCate[c] > 0).sort();
+    const pIPS = cates.map(c => mapCate[c] > 0 ? (mapIPS[c] || 0) / mapCate[c] * 100 : 0);
+    const pJub = cates.map(c => mapCate[c] > 0 ? (mapJub[c] || 0) / mapCate[c] * 100 : 0);
+    Plotly.react('ch-ips-cate', [
+        {
+            x: cates, y: pIPS, type: 'bar', name: 'IPS (%)',
+            marker: { color: 'rgba(13,148,136,0.75)', line: { color: C.teal, width: 1 } },
+            hovertemplate: '<b>%{x}</b><br>IPS: %{y:.1f}%<extra></extra>'
+        },
+        {
+            x: cates, y: pJub, type: 'bar', name: 'Jubilación (%)',
+            marker: { color: 'rgba(217,119,6,0.75)', line: { color: C.amber, width: 1 } },
+            hovertemplate: '<b>%{x}</b><br>Jub: %{y:.1f}%<extra></extra>'
+        }
+    ], {
+        ...BASE, barmode: 'group',
+        xaxis: { gridcolor: '#F1F5F9', automargin: true, tickangle: -20 },
+        yaxis: { gridcolor: '#F1F5F9', title: '%', range: [0, 105] }
+    }, PLY_CFG);
+}
+
+function buildIPSDonut(ips, ocu) {
+    Plotly.react('ch-ips-donut', [{
+        values: [ips, Math.max(0, ocu - ips)], labels: ['Con IPS', 'Sin IPS'],
+        type: 'pie', hole: 0.55,
+        marker: { colors: [C.teal, '#CBD5E1'], line: { color: 'white', width: 2 } },
+        hovertemplate: '<b>%{label}</b>: %{value:,.0f}<extra></extra>',
+        textinfo: 'label+percent', textposition: 'outside'
+    }], { ...BASE, showlegend: false, margin: { l: 20, r: 20, t: 20, b: 20 } }, PLY_CFG);
+}
+
+function buildEducEdad(rows) {
+    const grupos = ['15-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+    const mapPET = {}, mapAnios = {};
+    rows.forEach(d => {
+        const g = d.tramo_edad;  // correct field
+        if (!g || g === 'NR') return;
+        mapPET[g] = (mapPET[g] || 0) + +(d.personas_pet || 0);
+        mapAnios[g] = (mapAnios[g] || 0) + +(d.anios_estudio_pond || 0);  // correct field
+    });
+    const avg = grupos.map(g => mapPET[g] > 0 ? +(mapAnios[g] / mapPET[g]).toFixed(2) : 0);
+    Plotly.react('ch-educ-edad', [{
+        x: grupos, y: avg, type: 'bar',
+        marker: { color: avg.map(v => +v), colorscale: [[0, '#EFF6FF'], [1, C.purple]], showscale: false },
+        hovertemplate: '<b>%{x}</b><br>%{y:.1f} años promedio<extra></extra>',
+        text: avg.map(v => v.toFixed(1) + ' años'), textposition: 'outside'
+    }], {
+        ...BASE, showlegend: false,
+        xaxis: { gridcolor: '#F1F5F9' }, yaxis: { title: 'Años promedio', gridcolor: '#F1F5F9', range: [0, 14] }
+    }, PLY_CFG);
+}
+
+// ── Historical Charts ─────────────────────────────────────────
+function buildHistLab(mapTrim) {
+    const trims = Object.keys(mapTrim).sort();
+    const tft = trims.map(t => mapTrim[t].pet > 0 ? ((mapTrim[t].ocu + mapTrim[t].des) / mapTrim[t].pet * 100) : null);
+    const to = trims.map(t => mapTrim[t].pet > 0 ? (mapTrim[t].ocu / mapTrim[t].pet * 100) : null);
+    const td = trims.map(t => { const p = mapTrim[t].ocu + mapTrim[t].des; return p > 0 ? (mapTrim[t].des / p * 100) : null; });
+    const mk = (y, name, color) => ({
+        x: trims, y, name, type: 'scatter', mode: 'lines+markers',
+        line: { color, width: 2.5, shape: 'spline' }, marker: { size: 5, color },
+        hovertemplate: `<b>${name}</b>: %{y:.1f}%<extra></extra>`, connectgaps: false
+    });
+    Plotly.react('ch-hist-lab',
+        [mk(tft, 'TFT (%)', C.blue), mk(to, 'Tasa Ocupación (%)', C.green), mk(td, 'Tasa Desocupación (%)', C.red)],
+        {
+            ...BASE, hovermode: 'x unified',
+            xaxis: { title: 'Trimestre', gridcolor: '#F1F5F9', tickangle: -40, automargin: true },
+            yaxis: { title: '%', gridcolor: '#F1F5F9' }, margin: { l: 52, r: 16, t: 10, b: 90 }
+        }, PLY_CFG);
+}
+
+function buildHistSalud(mapTrim) {
+    const trims = Object.keys(mapTrim).sort();
+    const ips = trims.map(t => mapTrim[t].ocu > 0 ? (mapTrim[t].ips / mapTrim[t].ocu * 100) : null);
+    const jub = trims.map(t => mapTrim[t].ocu > 0 ? (mapTrim[t].jub / mapTrim[t].ocu * 100) : null);
+    Plotly.react('ch-hist-salud', [
+        {
+            x: trims, y: ips, name: 'IPS (%)', type: 'scatter', mode: 'lines+markers',
+            line: { color: C.teal, width: 2.5, shape: 'spline' }, marker: { size: 5, color: C.teal },
+            hovertemplate: '<b>IPS</b>: %{y:.1f}%<extra></extra>', connectgaps: false
+        },
+        {
+            x: trims, y: jub, name: 'Jubilación (%)', type: 'scatter', mode: 'lines+markers',
+            line: { color: C.amber, width: 2.5, shape: 'spline' }, marker: { size: 5, color: C.amber },
+            hovertemplate: '<b>Jubilación</b>: %{y:.1f}%<extra></extra>', connectgaps: false
+        }
+    ], {
+        ...BASE, hovermode: 'x unified',
+        xaxis: { title: 'Trimestre', gridcolor: '#F1F5F9', tickangle: -40, automargin: true },
+        yaxis: { title: '%', gridcolor: '#F1F5F9' }, margin: { l: 52, r: 16, t: 10, b: 90 }
+    }, PLY_CFG);
+}
+
+function buildHistSML(mapTrim) {
+    const trims = Object.keys(mapTrim).sort();
+    if (!trims.length) {
+        Plotly.react('ch-hist-sml', [], {
+            ...BASE, annotations: [{
+                text: 'Sin datos de Obreros Privados con este filtro',
+                showarrow: false, font: { color: '#94A3B8' }, xref: 'paper', yref: 'paper', x: .5, y: .5
+            }]
+        }, PLY_CFG);
+        return;
+    }
+    const cats = ['Menos de 1 SML', '1 SML', 'Más de 1 SML'];
+    const colors = [C.red, C.amber, C.green];
+    const getSum = t => cats.reduce((s, c) => s + (mapTrim[t][c] || 0), 0);
+    const traces = cats.map((cat, i) => ({
+        x: trims,
+        y: trims.map(t => { const s = getSum(t); return s > 0 ? (mapTrim[t][cat] || 0) / s * 100 : 0; }),
+        name: cat, type: 'bar', marker: { color: colors[i] },
+        hovertemplate: `<b>${cat}</b>: %{y:.1f}%<extra></extra>`
+    }));
+    Plotly.react('ch-hist-sml', traces, {
+        ...BASE, barmode: 'stack',
+        xaxis: { title: 'Trimestre', gridcolor: '#F1F5F9', tickangle: -40, automargin: true },
+        yaxis: { title: '%', gridcolor: '#F1F5F9', range: [0, 101] },
+        hovermode: 'x', margin: { l: 52, r: 16, t: 10, b: 90 }
+    }, PLY_CFG);
+}
+
+// ── Leaflet Maps ──────────────────────────────────────────────
+function initMaps() {
+    maps.demo = L.map('map-demo', { zoomControl: true }).setView([-23.5, -58.5], 5);
+    maps.laboral = L.map('map-laboral', { zoomControl: true }).setView([-23.5, -58.5], 5);
+    [maps.demo, maps.laboral].forEach(m =>
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            { attribution: '&copy; CartoDB', maxZoom: 18 }).addTo(m));
+}
+
+function updateMaps(mapDeptoPET, mapDeptoPEA) {
+    if (!geojsonData) return;
+    const maxPET = Math.max(...Object.values(mapDeptoPET), 1);
+
+    drawChoropleth(maps.demo, 'demo', mapDeptoPET, val => {
+        const r = val / maxPET;
+        return r > .6 ? '#1d4ed8' : r > .3 ? '#3b82f6' : r > .1 ? '#93c5fd' : '#bfdbfe';
+    }, (name, val) => `<b style="color:#2563EB">${name}</b><br>PET: <b>${fmtN(val)}</b>`);
+
+    drawChoropleth(maps.laboral, 'laboral', mapDeptoPEA, val => {
+        const tft = val.pet > 0 ? val.pea / val.pet : 0;
+        return tft > .70 ? '#065f46' : tft > .60 ? '#059669' : tft > .50 ? '#34d399' : '#a7f3d0';
+    }, (name, val) => {
+        const tft = val.pet > 0 ? (val.pea / val.pet * 100).toFixed(1) : 'N/D';
+        return `<b style="color:#0D9488">${name}</b><br>TFT: <b>${tft}%</b><br>PET: ${fmtN(val.pet)}`;
     });
 }
 
-function buildHistoricalChart(group) {
-    const chartId = `chart-hist-${group}`;
-    const allSeries = SERIES_CONFIG[group];
-    const active = activeToggles[group];
-    const allYears = rawData.map(r => r.año);
-
-    const traces = allSeries
-        .filter(s => active.has(s.col))
-        .map((s, idx) => ({
-            x: allYears,
-            y: rawData.map(r => r[s.col] ?? null),
-            name: s.label,
-            type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: LINE_COLORS[idx % LINE_COLORS.length], width: 2.5, shape: 'spline' },
-            marker: { size: 6, color: LINE_COLORS[idx % LINE_COLORS.length] },
-            hovertemplate: `<b>${s.label}</b><br>Año: %{x}<br>Valor: %{y:.2f} ${s.unit}<extra></extra>`,
-            connectgaps: false
-        }));
-
-    const layout = {
-        ...BASE_LAYOUT,
-        xaxis: {
-            title: 'Año',
-            dtick: 1,
-            gridcolor: '#F1F5F9',
-            fixedrange: false
+function drawChoropleth(map, key, dataMap, colorFn, tooltipFn) {
+    if (activeLayers[key]) map.removeLayer(activeLayers[key]);
+    activeLayers[key] = L.geoJSON(geojsonData, {
+        style: feature => {
+            const raw = feature.properties.dpto || feature.properties.DPTO || feature.properties.name || feature.properties.NAME || '';
+            const match = Object.keys(dataMap).find(k => normalize(k) === normalize(raw));
+            const val = match ? dataMap[match] : (key === 'laboral' ? { pet: 0, pea: 0 } : 0);
+            return { fillColor: colorFn(val || 0), fillOpacity: 0.75, color: 'white', weight: 1.5 };
         },
-        yaxis: {
-            title: 'Valor',
-            gridcolor: '#F1F5F9',
-            fixedrange: false
-        },
-        hovermode: 'x unified',
-        legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
-    };
-
-    Plotly.react(chartId, traces.length ? traces : [], layout,
-        { ...PLOTLY_CONFIG, modeBarButtonsToRemove: [] });
+        onEachFeature: (feature, layer) => {
+            const raw = feature.properties.dpto || feature.properties.DPTO || feature.properties.name || '';
+            const match = Object.keys(dataMap).find(k => normalize(k) === normalize(raw));
+            const val = match ? dataMap[match] : (key === 'laboral' ? { pet: 0, pea: 0 } : 0);
+            layer.bindPopup(`<div style="font-family:'Inter',sans-serif;font-size:13px;padding:2px 4px">${tooltipFn(raw || '—', val)}</div>`);
+            layer.on({
+                mouseover: e => { e.target.setStyle({ fillOpacity: .95 }); layer.openPopup(); },
+                mouseout: e => { activeLayers[key].resetStyle(e.target); layer.closePopup(); }
+            });
+        }
+    }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
 }
 
-// ─── DOWNLOAD HELPERS ────────────────────────────────────────
-function downloadChart(divId, name) {
-    Plotly.downloadImage(divId, { format: 'png', width: 1400, height: 700, filename: name });
-}
+const normalize = s => s ? s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '') : '';
 
-function downloadCSV(group) {
-    const cols = SERIES_CONFIG[group].map(s => s.col);
-    const colLabels = SERIES_CONFIG[group].map(s => s.label);
-    const header = ['Año', ...colLabels].join(',');
-    const rows = rawData.map(r => [r.año, ...cols.map(c => r[c] ?? '')].join(','));
-    const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `series_${group}.csv`;
-    link.click();
-}
-
-// ─── METODOLOGÍA (MARKDOWN) ──────────────────────────────────
+// ── Metodología ───────────────────────────────────────────────
 function loadMetodologia() {
     fetch('data/metodologia.md')
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.text();
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(md => {
+            const el = document.getElementById('met-content');
+            el.innerHTML = marked.parse(md);
+            buildTOC(el);
         })
-        .then(md => renderMetodologia(md))
-        .catch(err => {
+        .catch(e => {
             document.getElementById('met-content').innerHTML =
-                `<div style="color:#DC2626;padding:16px">
-                    <strong>Error al cargar el documento de metodología.</strong><br>
-                    Asegúrate de servir la aplicación desde un servidor web local.<br>
-                    <code>${err.message}</code>
-                </div>`;
+                `<p style="color:#DC2626">No se pudo cargar la metodología: ${e.message}</p>`;
         });
 }
 
-function renderMetodologia(md) {
-    const html = marked.parse(md);
-    const contentEl = document.getElementById('met-content');
-    contentEl.innerHTML = html;
-
-    // Build Table of Contents from headings
-    buildTOC(contentEl);
-}
-
-function buildTOC(contentEl) {
+function buildTOC(el) {
     const toc = document.getElementById('met-toc');
-    const heads = contentEl.querySelectorAll('h2, h3');
     toc.innerHTML = '';
-
-    heads.forEach((h, i) => {
-        const id = 'met-' + i;
-        h.id = id;
-
+    el.querySelectorAll('h2,h3').forEach((h, i) => {
+        h.id = 'sect-' + i;
         const a = document.createElement('a');
-        a.href = '#' + id;
+        a.href = '#sect-' + i;
         a.className = 'toc-link ' + h.tagName.toLowerCase();
         a.textContent = h.textContent;
-        a.addEventListener('click', e => {
-            e.preventDefault();
-            h.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        a.onclick = e => { e.preventDefault(); h.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
         toc.appendChild(a);
     });
 }
 
-// ─── ERROR DISPLAY ───────────────────────────────────────────
-function showError(msg) {
-    console.error(msg);
-}
+// ── Utilities ─────────────────────────────────────────────────
+const fmtN = n => n != null ? new Intl.NumberFormat('es-PY').format(Math.round(n)) : '—';
+const pct = r => (r * 100).toFixed(1) + ' %';
+const setText = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+const setStatus = msg => setText('filter-status', msg);
+window.dlChart = (id, name) => Plotly.downloadImage(id, { format: 'png', width: 1400, height: 700, filename: name });
